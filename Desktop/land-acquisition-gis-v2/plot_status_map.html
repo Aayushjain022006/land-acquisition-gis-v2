@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_e3bcfeb40d9b1bc151262d283ff92219 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css"/>
+</head>
+<body>
+    
+    
+
+<div style="
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+
+    background: rgba(255,255,255,0.95);
+
+    padding: 12px 22px;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 10px rgba(0,0,0,0.25);
+
+    font-family: Arial;
+
+    text-align: center;
+
+">
+
+    <div style="
+        font-size:20px;
+        font-weight:bold;
+    ">
+
+        LAND PARCEL STATUS VIEWER
+
+    </div>
+
+    <div style="
+        font-size:12px;
+        margin-top:4px;
+    ">
+
+        Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1
+
+        <br>
+
+        Palghar, Maharashtra
+
+    </div>
+
+</div>
+
+    
+
+<div style="
+    position:fixed;
+
+    bottom:25px;
+
+    left:25px;
+
+    width:230px;
+
+    background:white;
+
+    z-index:9999;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    box-shadow:
+        0 2px 10px rgba(0,0,0,0.3);
+
+    font-family:Arial;
+
+">
+
+    <b>LAND POSSESSION STATUS</b>
+
+    <br><br>
+
+    <span style="color:green;font-size:22px;">
+        ■
+    </span>
+
+    Not in Possession
+
+    <br>
+
+    <span style="color:orange;font-size:22px;">
+        ■
+    </span>
+
+    Partially Possessed
+
+    <br>
+
+    <span style="color:red;font-size:22px;">
+        ■
+    </span>
+
+    Fully Possessed
+
+    <br><br>
+
+    <span style="
+        color:#555;
+        font-size:11px;
+    ">
+
+        Prototype parcel layout
+
+    </span>
+
+</div>
+
+    
+            <div class="folium-map" id="map_e3bcfeb40d9b1bc151262d283ff92219" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_e3bcfeb40d9b1bc151262d283ff92219 = L.map(
+                "map_e3bcfeb40d9b1bc151262d283ff92219",
+                {
+                    center: [19.7515, 75.7139],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 15,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_5620a9125d68cfc670a78d7e2900a0c9 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "Esri World Imagery",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_5620a9125d68cfc670a78d7e2900a0c9.addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var tile_layer_c67c5c6524bcdce9ce065e05cbe0acbc = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_c67c5c6524bcdce9ce065e05cbe0acbc.addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var poly_line_e12f4591f2c09b992cd7e3ad5ada37a7 = L.polyline(
+                [[19.7507, 75.7119], [19.7507, 75.72189999999999]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "white", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.9, "smoothFactor": 1.0, "stroke": true, "weight": 20}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var polygon_5c837bdb88fcac93bb77288522748231 = L.polygon(
+                [[19.7515, 75.7139], [19.753, 75.7141], [19.7528, 75.71669999999999], [19.7515, 75.7164]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_67e052f7d4b4455bdc124d34f03de6fa = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_de0a13d6b358eb333f90a41633b9984f = $(`<div id="html_de0a13d6b358eb333f90a41633b9984f" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00001          <br>          <b>Parcel ID:</b>         PARCEL-00001          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         7.7%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         9.4%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Not Started          <br>          <b>Rehabilitation:</b>         Not Started          <br>          <b>Objections:</b>         0      </div>      </div>`)[0];
+                popup_67e052f7d4b4455bdc124d34f03de6fa.setContent(html_de0a13d6b358eb333f90a41633b9984f);
+            
+        
+
+        polygon_5c837bdb88fcac93bb77288522748231.bindPopup(popup_67e052f7d4b4455bdc124d34f03de6fa)
+        ;
+
+        
+    
+    
+            polygon_5c837bdb88fcac93bb77288522748231.bindTooltip(
+                `<div>
+                     PLOT-00001 | 7.7% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_9559727c3d07485c1f298cd3d886e22c = L.marker(
+                [19.7515, 75.7139],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_ec879aeb02eb6f29bc7cbe08808d447d = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00001\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_9559727c3d07485c1f298cd3d886e22c.setIcon(div_icon_ec879aeb02eb6f29bc7cbe08808d447d);
+            
+    
+            var polygon_94b728294270e9e9b2922c56dc39cb67 = L.polygon(
+                [[19.7532, 75.7141], [19.7547, 75.7139], [19.7546, 75.7166], [19.753, 75.71669999999999]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_7f9c8a0e7d716daa7d2fea6d9d6c06cd = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_eac793860094322d1acf1ab6336dca5a = $(`<div id="html_eac793860094322d1acf1ab6336dca5a" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00002          <br>          <b>Parcel ID:</b>         PARCEL-00002          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         20.0%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         27.2%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Not Started          <br>          <b>Rehabilitation:</b>         Not Started          <br>          <b>Objections:</b>         0      </div>      </div>`)[0];
+                popup_7f9c8a0e7d716daa7d2fea6d9d6c06cd.setContent(html_eac793860094322d1acf1ab6336dca5a);
+            
+        
+
+        polygon_94b728294270e9e9b2922c56dc39cb67.bindPopup(popup_7f9c8a0e7d716daa7d2fea6d9d6c06cd)
+        ;
+
+        
+    
+    
+            polygon_94b728294270e9e9b2922c56dc39cb67.bindTooltip(
+                `<div>
+                     PLOT-00002 | 20.0% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_7a6aadca40fca68831d45d74bb3e36ea = L.marker(
+                [19.7532, 75.7141],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_ac4b2c2e650dd628c5280ec8c05b3a86 = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00002\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_7a6aadca40fca68831d45d74bb3e36ea.setIcon(div_icon_ac4b2c2e650dd628c5280ec8c05b3a86);
+            
+    
+            var polygon_5d3e73d4f50abc568ecb0a5a70991ea4 = L.polygon(
+                [[19.7549, 75.7139], [19.7565, 75.7141], [19.7566, 75.7165], [19.7547, 75.7166]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_86e619e257d6f76ddaaf1dd1446374de = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_2bd7d26842401532666b1a9a236c0ce6 = $(`<div id="html_2bd7d26842401532666b1a9a236c0ce6" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00003          <br>          <b>Parcel ID:</b>         PARCEL-00003          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         28.4%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         36.0%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Not Started          <br>          <b>Rehabilitation:</b>         Not Started          <br>          <b>Objections:</b>         0      </div>      </div>`)[0];
+                popup_86e619e257d6f76ddaaf1dd1446374de.setContent(html_2bd7d26842401532666b1a9a236c0ce6);
+            
+        
+
+        polygon_5d3e73d4f50abc568ecb0a5a70991ea4.bindPopup(popup_86e619e257d6f76ddaaf1dd1446374de)
+        ;
+
+        
+    
+    
+            polygon_5d3e73d4f50abc568ecb0a5a70991ea4.bindTooltip(
+                `<div>
+                     PLOT-00003 | 28.4% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_fd5388f2d6064b50a2edec5f8abace91 = L.marker(
+                [19.7549, 75.7139],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_0ec24a1eaafab98a320d9e29bd48df38 = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00003\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_fd5388f2d6064b50a2edec5f8abace91.setIcon(div_icon_0ec24a1eaafab98a320d9e29bd48df38);
+            
+    
+            var polygon_ea43371e4014d78d526a2a5c60cbca5a = L.polygon(
+                [[19.7516, 75.7166], [19.7531, 75.71679999999999], [19.7529, 75.7195], [19.7515, 75.71929999999999]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_2af0b71cbf038450ac51a36ad8dd96e6 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_195c88da86add400671a16bd970b37fd = $(`<div id="html_195c88da86add400671a16bd970b37fd" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00004          <br>          <b>Parcel ID:</b>         PARCEL-00004          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         37.3%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         45.1%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Not Started          <br>          <b>Rehabilitation:</b>         Not Started          <br>          <b>Objections:</b>         3      </div>      </div>`)[0];
+                popup_2af0b71cbf038450ac51a36ad8dd96e6.setContent(html_195c88da86add400671a16bd970b37fd);
+            
+        
+
+        polygon_ea43371e4014d78d526a2a5c60cbca5a.bindPopup(popup_2af0b71cbf038450ac51a36ad8dd96e6)
+        ;
+
+        
+    
+    
+            polygon_ea43371e4014d78d526a2a5c60cbca5a.bindTooltip(
+                `<div>
+                     PLOT-00004 | 37.3% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_541efb642a67ae77c068bf2b0b1ca9c0 = L.marker(
+                [19.7516, 75.7166],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_2e03af525f3b6e2941218f1e983dac35 = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00004\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_541efb642a67ae77c068bf2b0b1ca9c0.setIcon(div_icon_2e03af525f3b6e2941218f1e983dac35);
+            
+    
+            var polygon_046bba5a48d3986fcb1b7d53e67ec034 = L.polygon(
+                [[19.7532, 75.71679999999999], [19.7547, 75.71669999999999], [19.7548, 75.7194], [19.7529, 75.7195]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_efbb5e9d804a9bbb930cb76420b05f04 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_968c3468475b1227eb25515a3858fff8 = $(`<div id="html_968c3468475b1227eb25515a3858fff8" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00005          <br>          <b>Parcel ID:</b>         PARCEL-00005          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         48.7%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         57.7%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Not Started          <br>          <b>Rehabilitation:</b>         Partially Complete          <br>          <b>Objections:</b>         3      </div>      </div>`)[0];
+                popup_efbb5e9d804a9bbb930cb76420b05f04.setContent(html_968c3468475b1227eb25515a3858fff8);
+            
+        
+
+        polygon_046bba5a48d3986fcb1b7d53e67ec034.bindPopup(popup_efbb5e9d804a9bbb930cb76420b05f04)
+        ;
+
+        
+    
+    
+            polygon_046bba5a48d3986fcb1b7d53e67ec034.bindTooltip(
+                `<div>
+                     PLOT-00005 | 48.7% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_d8ad897cddbbb8b5c234b94bf7d1e20d = L.marker(
+                [19.7532, 75.71679999999999],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_d66d9e38c4db82cb4af479ad9c461b16 = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00005\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_d8ad897cddbbb8b5c234b94bf7d1e20d.setIcon(div_icon_d66d9e38c4db82cb4af479ad9c461b16);
+            
+    
+            var polygon_6682d37c92e0477278a816f8b5902b56 = L.polygon(
+                [[19.7549, 75.71669999999999], [19.7566, 75.7166], [19.7565, 75.71929999999999], [19.7548, 75.7194]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_c3dc95bcfe3037d1c10e555df6dd9eb9 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_4a1126efc990307bf0a0f825aa838f25 = $(`<div id="html_4a1126efc990307bf0a0f825aa838f25" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00006          <br>          <b>Parcel ID:</b>         PARCEL-00006          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         50.4%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         68.8%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Partially Disbursed          <br>          <b>Rehabilitation:</b>         Partially Complete          <br>          <b>Objections:</b>         3      </div>      </div>`)[0];
+                popup_c3dc95bcfe3037d1c10e555df6dd9eb9.setContent(html_4a1126efc990307bf0a0f825aa838f25);
+            
+        
+
+        polygon_6682d37c92e0477278a816f8b5902b56.bindPopup(popup_c3dc95bcfe3037d1c10e555df6dd9eb9)
+        ;
+
+        
+    
+    
+            polygon_6682d37c92e0477278a816f8b5902b56.bindTooltip(
+                `<div>
+                     PLOT-00006 | 50.4% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_af7c699e5a17a5c68c10a37586501eb9 = L.marker(
+                [19.7549, 75.71669999999999],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_c537aa60b4112feb9ad1155eff1b0770 = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00006\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_af7c699e5a17a5c68c10a37586501eb9.setIcon(div_icon_c537aa60b4112feb9ad1155eff1b0770);
+            
+    
+            var polygon_2c96eeb3644ad05fe12245b83c189ea4 = L.polygon(
+                [[19.7515, 75.7195], [19.7529, 75.7196], [19.7528, 75.7222], [19.7515, 75.722]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_703abfa326569f26fba78b5b3f2a8de6 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_c2df194f6d343d592227c10f1bb72d72 = $(`<div id="html_c2df194f6d343d592227c10f1bb72d72" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00007          <br>          <b>Parcel ID:</b>         PARCEL-00007          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         88.1%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         94.2%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Partially Disbursed          <br>          <b>Rehabilitation:</b>         Substantially Complete          <br>          <b>Objections:</b>         3      </div>      </div>`)[0];
+                popup_703abfa326569f26fba78b5b3f2a8de6.setContent(html_c2df194f6d343d592227c10f1bb72d72);
+            
+        
+
+        polygon_2c96eeb3644ad05fe12245b83c189ea4.bindPopup(popup_703abfa326569f26fba78b5b3f2a8de6)
+        ;
+
+        
+    
+    
+            polygon_2c96eeb3644ad05fe12245b83c189ea4.bindTooltip(
+                `<div>
+                     PLOT-00007 | 88.1% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_85746becc3e0c67502f18dcc2ec3c53a = L.marker(
+                [19.7515, 75.7195],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_147aa5c473f958093c8d35f41aca7995 = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00007\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_85746becc3e0c67502f18dcc2ec3c53a.setIcon(div_icon_147aa5c473f958093c8d35f41aca7995);
+            
+    
+            var polygon_e88936511c58ea8b40d7277c629e4a03 = L.polygon(
+                [[19.753, 75.7196], [19.7548, 75.7195], [19.7547, 75.7221], [19.7528, 75.7222]],
+                {"bubblingMouseEvents": true, "color": "white", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.55, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+        var popup_5e6cb5ed230d10d4cee9ea513bedfa07 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_72fe3d2ff7cfdafdbc3e6af55079c4f5 = $(`<div id="html_72fe3d2ff7cfdafdbc3e6af55079c4f5" style="width: 100.0%; height: 100.0%;">      <div style="         width:320px;         font-family:Arial;         font-size:14px;     ">          <h3 style="             margin-bottom:10px;         ">             🏞️ LAND PLOT DETAILS         </h3>          <b>Plot ID:</b>         PLOT-00008          <br>          <b>Parcel ID:</b>         PARCEL-00008          <br>          <b>Project ID:</b>         LA-REF-0001          <br>          <b>Project:</b>         Mumbai-Ahmedabad High Speed Rail (Bullet Train) - Package 1          <br>          <b>District:</b>         Palghar          <br>          <b>State:</b>         Maharashtra          <hr>          <b>Possession:</b>         80.7%          <br>          <b>Status:</b>         PARTIALLY POSSESSED          <br>          <b>Land Acquired:</b>         100.0%          <br>          <b>Delay Risk:</b>         Medium          <br>          <b>Delay:</b>         259 days          <br>          <b>Compensation:</b>         Partially Disbursed          <br>          <b>Rehabilitation:</b>         Substantially Complete          <br>          <b>Objections:</b>         3      </div>      </div>`)[0];
+                popup_5e6cb5ed230d10d4cee9ea513bedfa07.setContent(html_72fe3d2ff7cfdafdbc3e6af55079c4f5);
+            
+        
+
+        polygon_e88936511c58ea8b40d7277c629e4a03.bindPopup(popup_5e6cb5ed230d10d4cee9ea513bedfa07)
+        ;
+
+        
+    
+    
+            polygon_e88936511c58ea8b40d7277c629e4a03.bindTooltip(
+                `<div>
+                     PLOT-00008 | 80.7% possession
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_d7e1b98b64e289a98e609823dba2595f = L.marker(
+                [19.753, 75.7196],
+                {
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var div_icon_860b681e78fc27489e21802cd0235a18 = L.divIcon({
+  "html": "\n\n            \u003cdiv style=\"\n                font-size:11px;\n                font-weight:bold;\n                color:white;\n                text-shadow:\n                    1px 1px 2px black;\n                width:100px;\n            \"\u003e\n\n                PLOT-00008\n\n            \u003c/div\u003e\n\n            ",
+  "className": "empty",
+});
+        
+    
+                marker_d7e1b98b64e289a98e609823dba2595f.setIcon(div_icon_860b681e78fc27489e21802cd0235a18);
+            
+    
+            L.control.fullscreen(
+                {
+  "position": "topleft",
+  "title": "Full Screen",
+  "titleCancel": "Exit Full Screen",
+  "forceSeparateButton": false,
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+        
+    
+            var layer_control_9f2c81ecbaca86696be154c228d577ba_layers = {
+                base_layers : {
+                    "Satellite" : tile_layer_5620a9125d68cfc670a78d7e2900a0c9,
+                    "Street Map" : tile_layer_c67c5c6524bcdce9ce065e05cbe0acbc,
+                },
+                overlays :  {
+                },
+            };
+            let layer_control_9f2c81ecbaca86696be154c228d577ba = L.control.layers(
+                layer_control_9f2c81ecbaca86696be154c228d577ba_layers.base_layers,
+                layer_control_9f2c81ecbaca86696be154c228d577ba_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_e3bcfeb40d9b1bc151262d283ff92219);
+
+        
+</script>
+</html>
