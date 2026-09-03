@@ -6,6 +6,13 @@ from pathlib import Path
 
 
 # =========================================================
+# BASE DIRECTORY
+# =========================================================
+
+BASE_DIR = Path(__file__).resolve().parent
+
+
+# =========================================================
 # PAGE CONFIG
 # =========================================================
 
@@ -29,13 +36,14 @@ st.markdown(
         padding-top: 1.2rem;
         padding-left: 2rem;
         padding-right: 2rem;
+        padding-bottom: 2rem;
     }
 
     .main-header {
         font-size: 34px;
         font-weight: 800;
         color: #16325c;
-        margin-bottom: 4px;
+        margin-bottom: 5px;
     }
 
     .sub-header {
@@ -52,34 +60,6 @@ st.markdown(
         margin-bottom: 12px;
     }
 
-    .prediction-box {
-        padding: 22px;
-        border-radius: 14px;
-        background: #f8fafc;
-        border: 1px solid #e4e7ec;
-    }
-
-    .success-box {
-        padding: 16px;
-        border-radius: 12px;
-        background: #ecfdf3;
-        border: 1px solid #abefc6;
-    }
-
-    .warning-box {
-        padding: 16px;
-        border-radius: 12px;
-        background: #fffaeb;
-        border: 1px solid #fedf89;
-    }
-
-    .danger-box {
-        padding: 16px;
-        border-radius: 12px;
-        background: #fef3f2;
-        border: 1px solid #fecdca;
-    }
-
     </style>
     """,
     unsafe_allow_html=True
@@ -87,34 +67,51 @@ st.markdown(
 
 
 # =========================================================
-# FILE CHECK
+# FILE PATHS
 # =========================================================
 
-DATA_FILE = Path("final_data.csv")
-MODEL_FILE = Path("model.pkl")
-FEATURE_FILE = Path("model_features.pkl")
+DATA_FILE = BASE_DIR / "final_data.csv"
+MODEL_FILE = BASE_DIR / "model.pkl"
+FEATURE_FILE = BASE_DIR / "model_features.pkl"
 
+
+# =========================================================
+# CHECK DATASET
+# =========================================================
 
 if not DATA_FILE.exists():
 
-    st.error("final_data.csv not found.")
+    st.error(
+        "final_data.csv not found in the application folder."
+    )
 
     st.stop()
 
 
 # =========================================================
-# LOAD DATA
+# LOAD DATASET
 # =========================================================
 
-df = pd.read_csv(DATA_FILE)
+try:
+
+    df = pd.read_csv(DATA_FILE)
+
+except Exception as e:
+
+    st.error(
+        f"Unable to load final_data.csv: {e}"
+    )
+
+    st.stop()
 
 
 # =========================================================
-# LOAD MODEL
+# LOAD ML MODEL
 # =========================================================
 
 model = None
 model_features = None
+
 
 if MODEL_FILE.exists():
 
@@ -143,12 +140,13 @@ if FEATURE_FILE.exists():
 
 
 # =========================================================
-# HELPER: HTML FILE VIEWER
+# FUNCTION TO DISPLAY HTML MAP / CHART
 # =========================================================
 
 def show_html(filename, height=650):
 
-    path = Path(filename)
+    path = BASE_DIR / filename
+
 
     if not path.exists():
 
@@ -157,6 +155,7 @@ def show_html(filename, height=650):
         )
 
         return
+
 
     try:
 
@@ -168,11 +167,13 @@ def show_html(filename, height=650):
 
             html = file.read()
 
+
         components.html(
             html,
             height=height,
             scrolling=False
         )
+
 
     except Exception as e:
 
@@ -182,41 +183,51 @@ def show_html(filename, height=650):
 
 
 # =========================================================
-# BASIC KPI CALCULATIONS
+# KPI CALCULATIONS
 # =========================================================
 
-total_projects = (
-    df["project_id"].nunique()
-    if "project_id" in df.columns
-    else len(df)
-)
+if "project_id" in df.columns:
+
+    total_projects = df["project_id"].nunique()
+
+else:
+
+    total_projects = len(df)
 
 
-high_risk = (
-    df["delay_risk"]
-    .astype(str)
-    .str.upper()
-    .eq("HIGH")
-    .sum()
-)
+if "delay_risk" in df.columns:
+
+    high_risk = (
+        df["delay_risk"]
+        .astype(str)
+        .str.upper()
+        .eq("HIGH")
+        .sum()
+    )
 
 
-medium_risk = (
-    df["delay_risk"]
-    .astype(str)
-    .str.upper()
-    .eq("MEDIUM")
-    .sum()
-)
+    medium_risk = (
+        df["delay_risk"]
+        .astype(str)
+        .str.upper()
+        .eq("MEDIUM")
+        .sum()
+    )
 
 
-low_risk = (
-    df["delay_risk"]
-    .astype(str)
-    .str.upper()
-    .eq("LOW")
-    .sum()
-)
+    low_risk = (
+        df["delay_risk"]
+        .astype(str)
+        .str.upper()
+        .eq("LOW")
+        .sum()
+    )
+
+else:
+
+    high_risk = 0
+    medium_risk = 0
+    low_risk = 0
 
 
 average_delay = pd.to_numeric(
@@ -229,11 +240,6 @@ average_possession = pd.to_numeric(
     df["possession_percent"],
     errors="coerce"
 ).mean()
-
-
-total_plots = (
-    len(df)
-)
 
 
 # =========================================================
@@ -252,6 +258,7 @@ with st.sidebar:
 
     st.divider()
 
+
     page = st.radio(
         "Navigation",
         [
@@ -265,7 +272,9 @@ with st.sidebar:
         ]
     )
 
+
     st.divider()
+
 
     st.markdown(
         """
@@ -290,6 +299,7 @@ if page == "Dashboard":
         unsafe_allow_html=True
     )
 
+
     st.markdown(
         '<div class="sub-header">'
         'Predictive Land Acquisition Monitoring & GIS Analytics'
@@ -299,7 +309,7 @@ if page == "Dashboard":
 
 
     # -----------------------------------------------------
-    # KPI ROW 1
+    # KPI CARDS
     # -----------------------------------------------------
 
     c1, c2, c3, c4, c5 = st.columns(5)
@@ -356,6 +366,7 @@ if page == "Dashboard":
         unsafe_allow_html=True
     )
 
+
     show_html(
         "land_plot_map.html",
         height=700
@@ -363,7 +374,7 @@ if page == "Dashboard":
 
 
     # -----------------------------------------------------
-    # QUICK ANALYTICS
+    # ANALYTICS
     # -----------------------------------------------------
 
     st.markdown(
@@ -414,13 +425,16 @@ if page == "Dashboard":
 elif page == "Predict Delay":
 
     st.markdown(
-        '<div class="main-header">Predict Land Acquisition Delay</div>',
+        '<div class="main-header">'
+        'Predict Land Acquisition Delay'
+        '</div>',
         unsafe_allow_html=True
     )
 
+
     st.markdown(
         '<div class="sub-header">'
-        'Use project-level factors to estimate expected delay.'
+        'Estimate expected project delay using the trained ML model.'
         '</div>',
         unsafe_allow_html=True
     )
@@ -429,14 +443,14 @@ elif page == "Predict Delay":
     if model is None:
 
         st.error(
-            "ML model is not available. Run model.py first."
+            "ML model not available. Please make sure model.pkl is present."
         )
 
         st.stop()
 
 
     # -----------------------------------------------------
-    # PROJECT SELECT
+    # PROJECT LIST
     # -----------------------------------------------------
 
     project_list = (
@@ -448,6 +462,15 @@ elif page == "Predict Delay":
     )
 
 
+    if not project_list:
+
+        st.error(
+            "No project records available."
+        )
+
+        st.stop()
+
+
     selected_project = st.selectbox(
         "Select Project",
         project_list
@@ -455,7 +478,7 @@ elif page == "Predict Delay":
 
 
     # -----------------------------------------------------
-    # SELECT RECORD
+    # GET SELECTED RECORD
     # -----------------------------------------------------
 
     project_rows = df[
@@ -464,10 +487,10 @@ elif page == "Predict Delay":
     ]
 
 
-    if len(project_rows) == 0:
+    if project_rows.empty:
 
         st.error(
-            "No record found for selected project."
+            "Selected project record not found."
         )
 
         st.stop()
@@ -494,44 +517,32 @@ elif page == "Predict Delay":
     with p1:
 
         st.write("**Project ID**")
-
-        st.write(
-            row["project_id"]
-        )
+        st.write(row["project_id"])
 
 
     with p2:
 
         st.write("**State**")
-
-        st.write(
-            row["state"]
-        )
+        st.write(row["state"])
 
 
     with p3:
 
         st.write("**District**")
-
-        st.write(
-            row["district"]
-        )
+        st.write(row["district"])
 
 
     with p4:
 
         st.write("**Current Risk**")
-
-        st.write(
-            row["delay_risk"]
-        )
+        st.write(row["delay_risk"])
 
 
     st.divider()
 
 
     # -----------------------------------------------------
-    # INPUT FEATURES
+    # PREDICTION INPUTS
     # -----------------------------------------------------
 
     st.markdown(
@@ -551,14 +562,18 @@ elif page == "Predict Delay":
             "Land Acquired (%)",
             min_value=0.0,
             max_value=100.0,
-            value=float(row["land_acquired_percent"])
+            value=float(
+                row["land_acquired_percent"]
+            )
         )
 
 
         pending_approvals = st.number_input(
             "Pending Approvals",
             min_value=0.0,
-            value=float(row["pending_approvals"])
+            value=float(
+                row["pending_approvals"]
+            )
         )
 
 
@@ -575,14 +590,18 @@ elif page == "Predict Delay":
         legal_cases = st.number_input(
             "Legal Cases",
             min_value=0.0,
-            value=float(row["legal_cases"])
+            value=float(
+                row["legal_cases"]
+            )
         )
 
 
         affected_families = st.number_input(
             "Affected Families",
             min_value=0.0,
-            value=float(row["affected_families"])
+            value=float(
+                row["affected_families"]
+            )
         )
 
 
@@ -592,7 +611,9 @@ elif page == "Predict Delay":
             "RR Completed (%)",
             min_value=0.0,
             max_value=100.0,
-            value=float(row["rr_completed_percent"])
+            value=float(
+                row["rr_completed_percent"]
+            )
         )
 
 
@@ -600,14 +621,18 @@ elif page == "Predict Delay":
             "Possession (%)",
             min_value=0.0,
             max_value=100.0,
-            value=float(row["possession_percent"])
+            value=float(
+                row["possession_percent"]
+            )
         )
 
 
         planned_duration = st.number_input(
             "Planned Duration (months)",
             min_value=0.0,
-            value=float(row["planned_duration_months"])
+            value=float(
+                row["planned_duration_months"]
+            )
         )
 
 
@@ -638,7 +663,7 @@ elif page == "Predict Delay":
 
 
     # -----------------------------------------------------
-    # PREDICT
+    # PREDICT BUTTON
     # -----------------------------------------------------
 
     if st.button(
@@ -646,6 +671,7 @@ elif page == "Predict Delay":
         type="primary",
         use_container_width=True
     ):
+
 
         input_data = pd.DataFrame(
             [{
@@ -684,13 +710,20 @@ elif page == "Predict Delay":
         )
 
 
-        # Ensure exact feature order
+        # -------------------------------------------------
+        # MATCH MODEL FEATURE ORDER
+        # -------------------------------------------------
+
         if model_features is not None:
 
             input_data = input_data[
                 model_features
             ]
 
+
+        # -------------------------------------------------
+        # PREDICT DELAY
+        # -------------------------------------------------
 
         predicted_delay = float(
             model.predict(input_data)[0]
@@ -704,24 +737,24 @@ elif page == "Predict Delay":
 
 
         # -------------------------------------------------
-        # RISK BAND
+        # RISK LEVEL
         # -------------------------------------------------
 
         if predicted_delay < 120:
 
-            risk = "LOW"
+            predicted_risk = "LOW"
 
         elif predicted_delay < 240:
 
-            risk = "MEDIUM"
+            predicted_risk = "MEDIUM"
 
         else:
 
-            risk = "HIGH"
+            predicted_risk = "HIGH"
 
 
         # -------------------------------------------------
-        # RECOMMENDATION
+        # RECOMMENDATIONS
         # -------------------------------------------------
 
         recommendations = []
@@ -803,15 +836,20 @@ elif page == "Predict Delay":
 
             st.metric(
                 "Predicted Risk",
-                risk
+                predicted_risk
             )
 
 
         with r3:
 
+            current_delay = pd.to_numeric(
+                row["delay_days"],
+                errors="coerce"
+            )
+
             st.metric(
                 "Current Delay",
-                f"{float(row['delay_days']):.1f} days"
+                f"{current_delay:.1f} days"
             )
 
 
@@ -819,13 +857,13 @@ elif page == "Predict Delay":
         # RISK MESSAGE
         # -------------------------------------------------
 
-        if risk == "HIGH":
+        if predicted_risk == "HIGH":
 
             st.error(
                 "⚠️ HIGH RISK — Immediate intervention recommended."
             )
 
-        elif risk == "MEDIUM":
+        elif predicted_risk == "MEDIUM":
 
             st.warning(
                 "⚠️ MEDIUM RISK — Close monitoring recommended."
@@ -839,7 +877,7 @@ elif page == "Predict Delay":
 
 
         # -------------------------------------------------
-        # RECOMMENDATION
+        # RECOMMENDATIONS
         # -------------------------------------------------
 
         st.markdown(
@@ -850,10 +888,10 @@ elif page == "Predict Delay":
         )
 
 
-        for item in recommendations:
+        for recommendation in recommendations:
 
             st.write(
-                f"• {item}"
+                f"• {recommendation}"
             )
 
 
@@ -868,9 +906,10 @@ elif page == "GIS Risk Map":
         unsafe_allow_html=True
     )
 
+
     st.markdown(
         '<div class="sub-header">'
-        'Visualize project locations, risk areas and spatial patterns.'
+        'Visualize project locations and regional risk.'
         '</div>',
         unsafe_allow_html=True
     )
@@ -907,15 +946,15 @@ elif page == "Plot Status":
         unsafe_allow_html=True
     )
 
+
     st.markdown(
         '<div class="sub-header">'
-        'Parcel-level possession monitoring.'
+        'Parcel-level land possession monitoring.'
         '</div>',
         unsafe_allow_html=True
     )
 
 
-    # Main parcel map
     show_html(
         "land_plot_map.html",
         height=750
@@ -947,9 +986,10 @@ elif page == "Risk Analytics":
         unsafe_allow_html=True
     )
 
+
     st.markdown(
         '<div class="sub-header">'
-        'Identify high-risk districts, states and regions.'
+        'Identify high-risk districts and regional patterns.'
         '</div>',
         unsafe_allow_html=True
     )
@@ -999,9 +1039,10 @@ elif page == "Delay Analytics":
         unsafe_allow_html=True
     )
 
+
     st.markdown(
         '<div class="sub-header">'
-        'Monitor delay trends across states and years.'
+        'Monitor acquisition delay trends across states and years.'
         '</div>',
         unsafe_allow_html=True
     )
@@ -1038,9 +1079,12 @@ elif page == "Delay Analytics":
 elif page == "Compensation":
 
     st.markdown(
-        '<div class="main-header">Compensation Analytics</div>',
+        '<div class="main-header">'
+        'Compensation Analytics'
+        '</div>',
         unsafe_allow_html=True
     )
+
 
     st.markdown(
         '<div class="sub-header">'
@@ -1061,6 +1105,7 @@ elif page == "Compensation":
 # =========================================================
 
 st.divider()
+
 
 st.caption(
     "LandGuard AI • GIS • Analytics • Machine Learning • SIH Prototype"
