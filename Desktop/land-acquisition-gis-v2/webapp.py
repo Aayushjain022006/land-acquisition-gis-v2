@@ -1,26 +1,24 @@
-from flask import (
-    Flask,
-    render_template,
-    jsonify,
-    request,
-    send_from_directory
-)
-
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from pathlib import Path
+import os
 import pandas as pd
 import joblib
 
 
-# =========================================================
-# PATH SETUP
-# =========================================================
+# ============================================================
+# PATHS
+# ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
 
+DATA_FILE = BASE_DIR / "final_data.csv"
+MODEL_FILE = BASE_DIR / "model.pkl"
+FEATURE_FILE = BASE_DIR / "model_features.pkl"
 
-# =========================================================
+
+# ============================================================
 # FLASK APP
-# =========================================================
+# ============================================================
 
 app = Flask(
     __name__,
@@ -29,231 +27,243 @@ app = Flask(
 )
 
 
-# =========================================================
-# FILE PATHS
-# =========================================================
+# ============================================================
+# LOAD DATA
+# ============================================================
 
-DATA_FILE = BASE_DIR / "final_data.csv"
-MODEL_FILE = BASE_DIR / "model.pkl"
-FEATURE_FILE = BASE_DIR / "model_features.pkl"
-
-
-# =========================================================
-# LOAD DATASET
-# =========================================================
+df = pd.DataFrame()
 
 try:
+    if DATA_FILE.exists():
+        df = pd.read_csv(DATA_FILE)
+        print(f"Dataset loaded successfully: {len(df)} rows")
+    else:
+        print("WARNING: final_data.csv not found.")
 
-    df = pd.read_csv(DATA_FILE)
-
-    print(
-        f"Dataset loaded successfully: {len(df)} rows"
-    )
-
-except Exception as error:
-
-    print(
-        "Dataset loading error:",
-        error
-    )
-
-    df = pd.DataFrame()
+except Exception as e:
+    print("Dataset loading error:", e)
 
 
-# =========================================================
-# LOAD MACHINE LEARNING MODEL
-# =========================================================
+# ============================================================
+# LOAD MODEL
+# ============================================================
 
 model = None
+
+try:
+    if MODEL_FILE.exists():
+        model = joblib.load(MODEL_FILE)
+        print("ML model loaded successfully.")
+    else:
+        print("WARNING: model.pkl not found.")
+
+except Exception as e:
+    print("Model loading error:", e)
+
+
+# ============================================================
+# LOAD MODEL FEATURES
+# ============================================================
+
 model_features = None
 
+try:
+    if FEATURE_FILE.exists():
+        model_features = joblib.load(FEATURE_FILE)
 
-if MODEL_FILE.exists():
+        # Convert common formats to list
+        if isinstance(model_features, dict):
+            if "features" in model_features:
+                model_features = model_features["features"]
+            elif "columns" in model_features:
+                model_features = model_features["columns"]
 
-    try:
+        if hasattr(model_features, "tolist"):
+            model_features = model_features.tolist()
 
-        model = joblib.load(
-            MODEL_FILE
-        )
+        if isinstance(model_features, str):
+            model_features = [model_features]
 
-        print(
-            "ML model loaded successfully."
-        )
+        model_features = list(model_features)
 
-    except Exception as error:
+        print("Model features loaded successfully.")
+        print("Model features:", model_features)
 
-        print(
-            "Model loading error:",
-            error
-        )
+    else:
+        print("WARNING: model_features.pkl not found.")
 
-
-if FEATURE_FILE.exists():
-
-    try:
-
-        model_features = joblib.load(
-            FEATURE_FILE
-        )
-
-        print(
-            "Model features loaded successfully."
-        )
-
-    except Exception as error:
-
-        print(
-            "Feature loading error:",
-            error
-        )
+except Exception as e:
+    print("Feature loading error:", e)
 
 
-# =========================================================
+# ============================================================
 # HELPER FUNCTIONS
-# =========================================================
+# ============================================================
 
-def safe_number(value, default=0.0):
-
+def safe_float(value, default=0.0):
     try:
+        if value is None:
+            return default
 
         if pd.isna(value):
             return default
 
         return float(value)
 
-    except Exception:
-
+    except (TypeError, ValueError):
         return default
 
 
-def risk_class(risk):
+def safe_int(value, default=0):
+    try:
+        if value is None:
+            return default
 
-    value = str(
-        risk
-    ).strip().upper()
+        if pd.isna(value):
+            return default
+
+        return int(float(value))
+
+    except (TypeError, ValueError):
+        return default
 
 
-    if value == "HIGH":
+def clean_text(value, default="-"):
+    if value is None:
+        return default
 
+    try:
+        if pd.isna(value):
+            return default
+    except Exception:
+        pass
+
+    return str(value)
+
+
+def get_first_existing(row, names, default=0):
+    """
+    Get the first matching value from a pandas row
+    using several possible column names.
+    """
+
+    for name in names:
+        if name in row.index:
+            value = row[name]
+
+            if not pd.isna(value):
+                return value
+
+    return default
+
+
+def normalize_risk(value):
+    risk = clean_text(value, "LOW").strip().upper()
+
+    if risk not in {"HIGH", "MEDIUM", "LOW"}:
+        return "LOW"
+
+    return risk
+
+
+def risk_css_class(value):
+    risk = normalize_risk(value)
+
+    if risk == "HIGH":
         return "risk-high"
 
-
-    if value == "MEDIUM":
-
+    if risk == "MEDIUM":
         return "risk-medium"
-
 
     return "risk-low"
 
 
-# =========================================================
-# KPI CALCULATIONS
-# =========================================================
+# ============================================================
+# BASIC DATA PREPARATION
+# ============================================================
 
-if not df.empty:
+total_records = len(df)
 
-    total_records = len(df)
+if not df.empty and "project_id" in df.columns:
 
-
-    if "project_id" in df.columns:
-
-        total_projects = (
-            df["project_id"]
-            .dropna()
-            .astype(str)
-            .nunique()
-        )
-
-    else:
-
-        total_projects = total_records
-
-
-    if "delay_risk" in df.columns:
-
-        high_risk = (
-            df["delay_risk"]
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            .eq("HIGH")
-            .sum()
-        )
-
-
-        medium_risk = (
-            df["delay_risk"]
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            .eq("MEDIUM")
-            .sum()
-        )
-
-
-        low_risk = (
-            df["delay_risk"]
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            .eq("LOW")
-            .sum()
-        )
-
-    else:
-
-        high_risk = 0
-        medium_risk = 0
-        low_risk = 0
-
-
-    average_delay = pd.to_numeric(
-
-        df.get(
-            "delay_days",
-            pd.Series(dtype=float)
-        ),
-
-        errors="coerce"
-
-    ).mean()
-
-
-    average_possession = pd.to_numeric(
-
-        df.get(
-            "possession_percent",
-            pd.Series(dtype=float)
-        ),
-
-        errors="coerce"
-
-    ).mean()
+    total_projects = (
+        df["project_id"]
+        .dropna()
+        .astype(str)
+        .nunique()
+    )
 
 else:
+    total_projects = total_records
 
-    total_records = 0
-    total_projects = 0
+
+# ============================================================
+# RISK COUNTS
+# ============================================================
+
+if not df.empty and "delay_risk" in df.columns:
+
+    normalized_risks = (
+        df["delay_risk"]
+        .fillna("LOW")
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    high_risk = int((normalized_risks == "HIGH").sum())
+    medium_risk = int((normalized_risks == "MEDIUM").sum())
+    low_risk = int((normalized_risks == "LOW").sum())
+
+else:
 
     high_risk = 0
     medium_risk = 0
     low_risk = 0
 
-    average_delay = 0
-    average_possession = 0
+
+# ============================================================
+# AVERAGES
+# ============================================================
+
+if not df.empty:
+
+    if "delay_days" in df.columns:
+        delay_series = pd.to_numeric(
+            df["delay_days"],
+            errors="coerce"
+        )
+
+        average_delay = float(
+            delay_series.mean()
+        ) if not delay_series.dropna().empty else 0.0
+
+    else:
+        average_delay = 0.0
 
 
-if pd.isna(average_delay):
-    average_delay = 0
+    if "possession_percent" in df.columns:
+        possession_series = pd.to_numeric(
+            df["possession_percent"],
+            errors="coerce"
+        )
+
+        average_possession = float(
+            possession_series.mean()
+        ) if not possession_series.dropna().empty else 0.0
+
+    else:
+        average_possession = 0.0
+
+else:
+
+    average_delay = 0.0
+    average_possession = 0.0
 
 
-if pd.isna(average_possession):
-    average_possession = 0
-
-
-# =========================================================
+# ============================================================
 # RISK PERCENTAGES
-# =========================================================
+# ============================================================
 
 if total_records > 0:
 
@@ -274,86 +284,102 @@ if total_records > 0:
 
 else:
 
-    high_percent = 0
-    medium_percent = 0
-    low_percent = 0
+    high_percent = 0.0
+    medium_percent = 0.0
+    low_percent = 0.0
 
 
-# =========================================================
+# ============================================================
+# PROJECT IDS
+# ============================================================
+
+if not df.empty and "project_id" in df.columns:
+
+    projects = sorted(
+        df["project_id"]
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
+    )
+
+else:
+
+    projects = []
+
+
+# ============================================================
 # PROJECT TABLE
-# =========================================================
+# ============================================================
 
 project_table = []
 
-
 if not df.empty:
 
-    for _, row in df.head(250).iterrows():
+    working_df = df.copy()
+
+    # Sort by delay if available
+    if "delay_days" in working_df.columns:
+
+        working_df["_sort_delay"] = pd.to_numeric(
+            working_df["delay_days"],
+            errors="coerce"
+        )
+
+        working_df = working_df.sort_values(
+            "_sort_delay",
+            ascending=False,
+            na_position="last"
+        )
+
+    # Keep dashboard responsive
+    working_df = working_df.head(250)
+
+    for _, row in working_df.iterrows():
+
+        risk = normalize_risk(
+            row.get("delay_risk", "LOW")
+        )
 
         project_table.append({
 
             "project_id":
-                str(
-                    row.get(
-                        "project_id",
-                        "-"
-                    )
+                clean_text(
+                    row.get("project_id", "-")
                 ),
 
             "project_name":
-                str(
-                    row.get(
-                        "project_name",
-                        "-"
-                    )
+                clean_text(
+                    row.get("project_name", "-")
                 ),
 
             "state":
-                str(
-                    row.get(
-                        "state",
-                        "-"
-                    )
+                clean_text(
+                    row.get("state", "-")
                 ),
 
             "district":
-                str(
-                    row.get(
-                        "district",
-                        "-"
-                    )
+                clean_text(
+                    row.get("district", "-")
                 ),
 
             "delay_risk":
-                str(
-                    row.get(
-                        "delay_risk",
-                        "LOW"
-                    )
-                ),
+                risk,
 
             "risk_class":
-                risk_class(
-                    row.get(
-                        "delay_risk",
-                        "LOW"
-                    )
-                ),
+                risk_css_class(risk),
 
             "delay_days":
                 round(
-                    safe_number(
-                        row.get(
-                            "delay_days",
-                            0
-                        )
+                    safe_float(
+                        row.get("delay_days", 0)
                     ),
                     1
                 ),
 
             "possession_percent":
                 round(
-                    safe_number(
+                    safe_float(
                         row.get(
                             "possession_percent",
                             0
@@ -365,49 +391,48 @@ if not df.empty:
         })
 
 
-# =========================================================
-# PROJECTS NEEDING ATTENTION
-# =========================================================
+# ============================================================
+# ATTENTION PROJECTS
+# ============================================================
 
 attention_projects = []
 
-
-if (
-    not df.empty
-    and "delay_days" in df.columns
-):
+if not df.empty:
 
     attention_df = df.copy()
 
+    if "delay_days" in attention_df.columns:
 
-    attention_df["delay_numeric"] = pd.to_numeric(
-
-        attention_df["delay_days"],
-
-        errors="coerce"
-
-    )
-
-
-    attention_df = (
-
-        attention_df
-        .sort_values(
-            "delay_numeric",
-            ascending=False,
-            na_position="last"
+        attention_df["_delay_numeric"] = pd.to_numeric(
+            attention_df["delay_days"],
+            errors="coerce"
         )
-        .head(8)
 
-    )
+        attention_df = (
+            attention_df
+            .sort_values(
+                "_delay_numeric",
+                ascending=False,
+                na_position="last"
+            )
+            .head(8)
+        )
+
+    else:
+
+        attention_df = attention_df.head(8)
 
 
     for _, row in attention_df.iterrows():
 
+        risk = normalize_risk(
+            row.get("delay_risk", "LOW")
+        )
+
         attention_projects.append({
 
             "project_id":
-                str(
+                clean_text(
                     row.get(
                         "project_id",
                         "-"
@@ -415,7 +440,7 @@ if (
                 ),
 
             "district":
-                str(
+                clean_text(
                     row.get(
                         "district",
                         "-"
@@ -423,24 +448,14 @@ if (
                 ),
 
             "delay_risk":
-                str(
-                    row.get(
-                        "delay_risk",
-                        "LOW"
-                    )
-                ),
+                risk,
 
             "risk_class":
-                risk_class(
-                    row.get(
-                        "delay_risk",
-                        "LOW"
-                    )
-                ),
+                risk_css_class(risk),
 
             "delay_days":
                 round(
-                    safe_number(
+                    safe_float(
                         row.get(
                             "delay_days",
                             0
@@ -452,39 +467,14 @@ if (
         })
 
 
-# =========================================================
-# PROJECT IDs
-# =========================================================
-
-if (
-    not df.empty
-    and "project_id" in df.columns
-):
-
-    projects = sorted(
-
-        df["project_id"]
-        .dropna()
-        .astype(str)
-        .unique()
-        .tolist()
-
-    )
-
-else:
-
-    projects = []
-
-
-# =========================================================
-# DASHBOARD ROUTE
-# =========================================================
+# ============================================================
+# DASHBOARD
+# ============================================================
 
 @app.route("/")
 def dashboard():
 
     return render_template(
-
         "dashboard.html",
 
         total_projects=total_projects,
@@ -512,31 +502,35 @@ def dashboard():
         attention_projects=attention_projects,
 
         projects=projects
-
     )
 
 
-# =========================================================
-# SERVE EXISTING MAPS / CHARTS
-# =========================================================
+# ============================================================
+# MAPS / CHARTS / HTML FILES
+# ============================================================
 
-@app.route(
-    "/files/<path:filename>"
-)
+@app.route("/files/<path:filename>")
 def serve_files(filename):
 
+    requested_file = BASE_DIR / filename
+
+    if not requested_file.exists():
+        return (
+            jsonify({
+                "error": f"File not found: {filename}"
+            }),
+            404
+        )
+
     return send_from_directory(
-
         str(BASE_DIR),
-
         filename
-
     )
 
 
-# =========================================================
-# AI PREDICTION API
-# =========================================================
+# ============================================================
+# PREDICTION
+# ============================================================
 
 @app.route(
     "/api/predict",
@@ -544,23 +538,25 @@ def serve_files(filename):
 )
 def predict():
 
+    # --------------------------------------------------------
+    # CHECK MODEL
+    # --------------------------------------------------------
+
     if model is None:
 
         return jsonify({
-
-            "error":
-                "model.pkl could not be loaded."
-
+            "error": "ML model could not be loaded."
         }), 500
 
+
+    # --------------------------------------------------------
+    # CHECK DATASET
+    # --------------------------------------------------------
 
     if df.empty:
 
         return jsonify({
-
-            "error":
-                "final_data.csv could not be loaded."
-
+            "error": "final_data.csv could not be loaded."
         }), 500
 
 
@@ -571,379 +567,492 @@ def predict():
         )
 
 
-        if not data:
+        if not isinstance(data, dict):
 
             return jsonify({
-
-                "error":
-                    "No prediction data received."
-
+                "error": "Invalid prediction data."
             }), 400
 
 
-        project_id = str(
-
-            data.get(
-                "project_id",
-                ""
-            )
-
+        project_id = clean_text(
+            data.get("project_id"),
+            ""
         )
 
 
         if not project_id:
 
             return jsonify({
-
-                "error":
-                    "Project ID is required."
-
+                "error": "Project ID is required."
             }), 400
 
 
-        project_rows = df[
+        # ----------------------------------------------------
+        # FIND SELECTED PROJECT
+        # ----------------------------------------------------
 
+        if "project_id" not in df.columns:
+
+            return jsonify({
+                "error": "project_id column is missing."
+            }), 500
+
+
+        selected_rows = df[
             df["project_id"]
             .astype(str)
             .eq(project_id)
-
         ]
 
 
-        if project_rows.empty:
+        if selected_rows.empty:
 
             return jsonify({
-
                 "error":
                     f"Project {project_id} not found."
-
             }), 404
 
 
-        row = project_rows.iloc[0]
+        selected_row = selected_rows.iloc[0]
 
 
-        # =================================================
-        # MODEL INPUT
-        # =================================================
+        # ----------------------------------------------------
+        # USER INPUTS
+        # ----------------------------------------------------
 
-        input_data = pd.DataFrame(
-
-            [{
-
-                "land_acquired_percent":
-                    safe_number(
-                        data.get(
-                            "land_acquired",
-                            0
-                        )
-                    ),
-
-                "pending_approvals":
-                    safe_number(
-                        data.get(
-                            "pending_approvals",
-                            0
-                        )
-                    ),
-
-                "compensation_pending_percent":
-                    safe_number(
-                        data.get(
-                            "compensation_pending",
-                            0
-                        )
-                    ),
-
-                "legal_cases":
-                    safe_number(
-                        data.get(
-                            "legal_cases",
-                            0
-                        )
-                    ),
-
-                "affected_families":
-                    safe_number(
-                        data.get(
-                            "affected_families",
-                            0
-                        )
-                    ),
-
-                "rr_completed_percent":
-                    safe_number(
-                        data.get(
-                            "rr_completed",
-                            0
-                        )
-                    ),
-
-                "possession_percent":
-                    safe_number(
-                        data.get(
-                            "possession",
-                            0
-                        )
-                    ),
-
-                "planned_duration_months":
-                    safe_number(
-                        data.get(
-                            "planned_duration",
-                            0
-                        )
-                    ),
-
-                "environmental_clearance":
-                    int(
-                        safe_number(
-                            data.get(
-                                "environmental",
-                                0
-                            )
-                        )
-                    ),
-
-                "forest_clearance":
-                    int(
-                        safe_number(
-                            data.get(
-                                "forest",
-                                0
-                            )
-                        )
-                    )
-
-            }]
-
+        possession = safe_float(
+            data.get(
+                "possession",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "possession_percent",
+                        "possession"
+                    ],
+                    0
+                )
+            )
         )
 
 
-        # =================================================
-        # FEATURE ORDER
-        # =================================================
+        land_acquired = safe_float(
+            data.get(
+                "land_acquired",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "land_acquired_percent",
+                        "land_acquired"
+                    ],
+                    0
+                )
+            )
+        )
 
-        if model_features is not None:
 
-            feature_list = list(
-                model_features
+        pending_approvals = safe_float(
+            data.get(
+                "pending_approvals",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "pending_approvals"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        compensation_pending = safe_float(
+            data.get(
+                "compensation_pending",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "compensation_pending_percent",
+                        "compensation_pending"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        legal_cases = safe_float(
+            data.get(
+                "legal_cases",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "legal_cases"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        affected_families = safe_float(
+            data.get(
+                "affected_families",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "affected_families"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        rr_completed = safe_float(
+            data.get(
+                "rr_completed",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "rr_completed_percent",
+                        "rr_completed"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        planned_duration = safe_float(
+            data.get(
+                "planned_duration",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "planned_duration_months",
+                        "planned_duration"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        environmental = safe_int(
+            data.get(
+                "environmental",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "environmental_clearance"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        forest = safe_int(
+            data.get(
+                "forest",
+                get_first_existing(
+                    selected_row,
+                    [
+                        "forest_clearance"
+                    ],
+                    0
+                )
+            )
+        )
+
+
+        # ----------------------------------------------------
+        # BASE INPUT DATA
+        #
+        # Start from the actual project row wherever possible.
+        # This makes prediction more compatible with the model
+        # that was trained from final_data.csv.
+        # ----------------------------------------------------
+
+        if model_features:
+
+            input_row = {}
+
+
+            for feature in model_features:
+
+                # Existing value from dataset
+                if feature in selected_row.index:
+
+                    input_row[feature] = selected_row[feature]
+
+                else:
+
+                    input_row[feature] = 0
+
+
+            input_df = pd.DataFrame(
+                [input_row]
             )
 
 
-            missing_features = [
+            # ------------------------------------------------
+            # OVERRIDE COMMON USER-CONTROLLED FEATURES
+            # ------------------------------------------------
 
-                feature
+            feature_aliases = {
 
-                for feature in feature_list
+                "possession_percent":
+                    possession,
 
-                if feature
-                not in input_data.columns
+                "possession":
+                    possession,
 
+                "land_acquired_percent":
+                    land_acquired,
+
+                "land_acquired":
+                    land_acquired,
+
+                "pending_approvals":
+                    pending_approvals,
+
+                "compensation_pending_percent":
+                    compensation_pending,
+
+                "compensation_pending":
+                    compensation_pending,
+
+                "legal_cases":
+                    legal_cases,
+
+                "affected_families":
+                    affected_families,
+
+                "rr_completed_percent":
+                    rr_completed,
+
+                "rr_completed":
+                    rr_completed,
+
+                "planned_duration_months":
+                    planned_duration,
+
+                "planned_duration":
+                    planned_duration,
+
+                "environmental_clearance":
+                    environmental,
+
+                "forest_clearance":
+                    forest
+
+            }
+
+
+            for feature, value in feature_aliases.items():
+
+                if feature in input_df.columns:
+
+                    input_df[feature] = value
+
+
+            # Ensure exact feature order
+            input_df = input_df[
+                model_features
             ]
 
-
-            if missing_features:
-
-                return jsonify({
-
-                    "error":
-                        "Model feature mismatch. "
-                        f"Missing: {missing_features}"
-
-                }), 500
-
-
-            input_data = input_data[
-                feature_list
-            ]
-
-
-        # =================================================
-        # MODEL PREDICTION
-        # =================================================
-
-        prediction = float(
-
-            model.predict(
-                input_data
-            )[0]
-
-        )
-
-
-        prediction = max(
-            0,
-            prediction
-        )
-
-
-        # =================================================
-        # RISK
-        # =================================================
-
-        if prediction < 120:
-
-            predicted_risk = "LOW"
-
-        elif prediction < 240:
-
-            predicted_risk = "MEDIUM"
 
         else:
 
-            predicted_risk = "HIGH"
+            # ------------------------------------------------
+            # FALLBACK INPUT
+            # ------------------------------------------------
+
+            input_df = pd.DataFrame([{
+
+                "land_acquired_percent":
+                    land_acquired,
+
+                "pending_approvals":
+                    pending_approvals,
+
+                "compensation_pending_percent":
+                    compensation_pending,
+
+                "legal_cases":
+                    legal_cases,
+
+                "affected_families":
+                    affected_families,
+
+                "rr_completed_percent":
+                    rr_completed,
+
+                "possession_percent":
+                    possession,
+
+                "planned_duration_months":
+                    planned_duration,
+
+                "environmental_clearance":
+                    environmental,
+
+                "forest_clearance":
+                    forest
+
+            }])
 
 
-        # =================================================
-        # INPUT VALUES
-        # =================================================
+        # ----------------------------------------------------
+        # CLEAN NUMERIC VALUES
+        # ----------------------------------------------------
 
-        possession = safe_number(
-            data.get(
-                "possession",
-                0
-            )
-        )
+        for column in input_df.columns:
 
+            if pd.api.types.is_numeric_dtype(
+                input_df[column]
+            ):
 
-        compensation_pending = safe_number(
-            data.get(
-                "compensation_pending",
-                0
-            )
-        )
-
-
-        legal_cases = safe_number(
-            data.get(
-                "legal_cases",
-                0
-            )
-        )
-
-
-        pending_approvals = safe_number(
-            data.get(
-                "pending_approvals",
-                0
-            )
-        )
-
-
-        environmental = int(
-
-            safe_number(
-                data.get(
-                    "environmental",
-                    0
+                input_df[column] = pd.to_numeric(
+                    input_df[column],
+                    errors="coerce"
                 )
-            )
 
+
+        input_df = input_df.fillna(0)
+
+
+        # ----------------------------------------------------
+        # PREDICTION
+        # ----------------------------------------------------
+
+        predicted_delay = float(
+            model.predict(input_df)[0]
         )
 
 
-        forest = int(
-
-            safe_number(
-                data.get(
-                    "forest",
-                    0
-                )
-            )
-
+        predicted_delay = max(
+            0.0,
+            predicted_delay
         )
 
 
-        # =================================================
-        # RECOMMENDATION
-        # =================================================
+        # ----------------------------------------------------
+        # RISK LEVEL
+        # ----------------------------------------------------
 
-        actions = []
+        if predicted_delay < 120:
+
+            risk = "LOW"
+
+        elif predicted_delay < 240:
+
+            risk = "MEDIUM"
+
+        else:
+
+            risk = "HIGH"
+
+
+        # ----------------------------------------------------
+        # CURRENT DELAY
+        # ----------------------------------------------------
+
+        current_delay = safe_float(
+            selected_row.get(
+                "delay_days",
+                0
+            )
+        )
+
+
+        # ----------------------------------------------------
+        # AI RECOMMENDATION
+        # ----------------------------------------------------
+
+        recommendations = []
 
 
         if possession < 50:
 
-            actions.append(
+            recommendations.append(
                 "Prioritize land possession."
             )
 
 
-        if compensation_pending > 50:
+        if compensation_pending > 40:
 
-            actions.append(
+            recommendations.append(
                 "Accelerate compensation processing."
             )
 
 
         if legal_cases > 0:
 
-            actions.append(
+            recommendations.append(
                 "Review pending legal cases."
             )
 
 
         if pending_approvals > 0:
 
-            actions.append(
+            recommendations.append(
                 "Expedite pending approvals."
             )
 
 
         if environmental == 0:
 
-            actions.append(
+            recommendations.append(
                 "Resolve environmental clearance."
             )
 
 
         if forest == 0:
 
-            actions.append(
+            recommendations.append(
                 "Resolve forest clearance."
             )
 
 
-        if not actions:
+        if not recommendations:
 
-            actions.append(
+            recommendations.append(
                 "Continue routine monitoring."
             )
 
 
         recommendation = " ".join(
-            actions
+            recommendations
         )
 
 
-        # =================================================
-        # CURRENT DELAY
-        # =================================================
-
-        current_delay = safe_number(
-
-            row.get(
-                "delay_days",
-                0
-            )
-
-        )
-
-
-        # =================================================
+        # ----------------------------------------------------
         # RESPONSE
-        # =================================================
+        # ----------------------------------------------------
 
         return jsonify({
 
+            "success":
+                True,
+
+            "project_id":
+                project_id,
+
             "predicted_delay":
-                prediction,
+                round(
+                    predicted_delay,
+                    1
+                ),
 
             "risk":
-                predicted_risk,
+                risk,
 
             "current_delay":
-                current_delay,
+                round(
+                    current_delay,
+                    1
+                ),
 
             "recommendation":
                 recommendation
@@ -951,29 +1060,29 @@ def predict():
         })
 
 
-    except Exception as error:
+    except Exception as e:
 
         print(
             "Prediction error:",
-            error
+            repr(e)
         )
-
 
         return jsonify({
 
+            "success":
+                False,
+
             "error":
-                str(error)
+                str(e)
 
-        }), 400
+        }), 500
 
 
-# =========================================================
+# ============================================================
 # HEALTH CHECK
-# =========================================================
+# ============================================================
 
-@app.route(
-    "/api/health"
-)
+@app.route("/api/health")
 def health():
 
     return jsonify({
@@ -985,60 +1094,57 @@ def health():
             not df.empty,
 
         "dataset_rows":
-            len(df),
+            int(len(df)),
 
         "model_loaded":
-            model is not None
+            model is not None,
+
+        "features_loaded":
+            model_features is not None
 
     })
 
 
-# =========================================================
+# ============================================================
 # LOCAL SERVER
-# =========================================================
+# ============================================================
 
 if __name__ == "__main__":
 
+    port = int(
+        os.environ.get(
+            "PORT",
+            5001
+        )
+    )
+
     print()
-    print("=" * 60)
+    print("=" * 65)
+    print("LANDGUARD AI CUSTOM WEB DASHBOARD")
+    print("=" * 65)
+    print(f"Dataset rows : {len(df)}")
+    print(f"Projects     : {total_projects}")
     print(
-        "LANDGUARD AI CUSTOM WEB DASHBOARD"
+        "ML Model     :",
+        "Loaded" if model is not None else "Not Loaded"
     )
-    print("=" * 60)
-
     print(
-        "Dataset rows:",
-        len(df)
+        "Features     :",
+        "Loaded" if model_features is not None else "Not Loaded"
     )
+    print("=" * 65)
 
-    print(
-        "Projects:",
-        total_projects
-    )
+    if port == 5001:
 
-    print(
-        "ML Model:",
-        "Loaded"
-        if model is not None
-        else "Not Loaded"
-    )
+        print(
+            "Open: http://127.0.0.1:5001"
+        )
 
-    print("=" * 60)
-
-    print(
-        "Open: http://127.0.0.1:5001"
-    )
-
-    print("=" * 60)
+    print("=" * 65)
     print()
-
 
     app.run(
-
         host="0.0.0.0",
-
-        port=5001,
-
+        port=port,
         debug=True
-
     )
