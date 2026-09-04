@@ -1,5 +1,5 @@
-import sys
 from pathlib import Path
+import sys
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 

@@ -4,4 +4,3 @@ joblib
 scikit-learn
 folium
 plotly
-gunicorn
