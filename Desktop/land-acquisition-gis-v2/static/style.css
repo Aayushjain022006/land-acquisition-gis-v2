@@ -1,0 +1,1060 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: #f5f7fb;
+    color: #172033;
+}
+
+
+/* =========================================
+   APP
+========================================= */
+
+.app {
+    min-height: 100vh;
+}
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.sidebar {
+    position: fixed;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 250px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #0d1830 0%,
+            #14264b 100%
+        );
+
+    color: white;
+
+    padding: 24px 18px;
+
+    overflow-y: auto;
+
+    z-index: 100;
+}
+
+
+.brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    margin-bottom: 35px;
+}
+
+
+.brand-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: #2563eb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 21px;
+}
+
+
+.brand-name {
+    font-weight: 800;
+    font-size: 18px;
+}
+
+
+.brand-subtitle {
+    color: #95a4c1;
+
+    font-size: 11px;
+
+    margin-top: 3px;
+}
+
+
+.nav-section-title {
+    color: #73829f;
+
+    font-size: 10px;
+
+    letter-spacing: 1.2px;
+
+    font-weight: 700;
+
+    margin:
+        20px 10px 8px;
+}
+
+
+.nav-item {
+    width: 100%;
+
+    border: none;
+
+    background: transparent;
+
+    color: #bdc8da;
+
+    text-align: left;
+
+    padding: 12px 13px;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    margin-bottom: 5px;
+
+    transition: 0.2s;
+}
+
+
+.nav-item span {
+    display: inline-block;
+
+    width: 24px;
+}
+
+
+.nav-item:hover {
+    background: rgba(255,255,255,0.08);
+
+    color: white;
+}
+
+
+.nav-item.active {
+    background: #243a67;
+
+    color: white;
+}
+
+
+.sidebar-bottom {
+    position: absolute;
+
+    left: 18px;
+    right: 18px;
+    bottom: 20px;
+
+    padding: 14px;
+
+    border-radius: 11px;
+
+    background: rgba(255,255,255,0.06);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 11px;
+}
+
+
+.sidebar-bottom strong {
+    display: block;
+
+    font-size: 10px;
+}
+
+
+.sidebar-bottom small {
+    color: #91a0bb;
+
+    font-size: 10px;
+}
+
+
+.online-dot {
+    width: 9px;
+    height: 9px;
+
+    background: #39d98a;
+
+    border-radius: 50%;
+}
+
+
+/* =========================================
+   MAIN
+========================================= */
+
+.main {
+    margin-left: 250px;
+
+    padding: 28px 34px;
+
+    min-height: 100vh;
+}
+
+
+.topbar {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+}
+
+
+.topbar h1 {
+    margin: 0;
+
+    font-size: 27px;
+
+    font-weight: 800;
+}
+
+
+.topbar p {
+    margin:
+        6px 0 0;
+
+    color: #7b879b;
+
+    font-size: 13px;
+}
+
+
+.top-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.live-badge {
+    padding:
+        8px 12px;
+
+    border-radius: 999px;
+
+    background: #ecfdf3;
+
+    color: #16805a;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+.avatar {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+
+    background: #dbe7ff;
+
+    color: #245ac5;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 800;
+}
+
+
+/* =========================================
+   PAGE
+========================================= */
+
+.page {
+    display: none;
+}
+
+
+.active-page {
+    display: block;
+}
+
+
+.page-heading {
+    margin-bottom: 18px;
+}
+
+
+.page-heading h2 {
+    margin: 0;
+
+    font-size: 24px;
+}
+
+
+.page-heading p {
+    margin-top: 5px;
+
+    color: #7b879b;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   KPI
+========================================= */
+
+.kpi-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 14px;
+
+    margin-bottom: 18px;
+}
+
+
+.kpi-card {
+    background: white;
+
+    border: 1px solid #e5e9f0;
+
+    border-radius: 14px;
+
+    padding: 17px;
+
+    box-shadow:
+        0 4px 15px
+        rgba(20,40,75,0.04);
+}
+
+
+.kpi-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    color: #77849a;
+
+    font-size: 12px;
+}
+
+
+.kpi-icon {
+    width: 31px;
+    height: 31px;
+
+    border-radius: 9px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 800;
+}
+
+
+.kpi-icon.blue {
+    background: #e8f0ff;
+    color: #2e6bda;
+}
+
+
+.kpi-icon.red {
+    background: #fff0f0;
+    color: #e84a4a;
+}
+
+
+.kpi-icon.orange {
+    background: #fff5e7;
+    color: #e98a13;
+}
+
+
+.kpi-icon.purple {
+    background: #f2edff;
+    color: #8158d8;
+}
+
+
+.kpi-icon.green {
+    background: #eafaf2;
+    color: #16a06c;
+}
+
+
+.kpi-value {
+    font-size: 26px;
+
+    font-weight: 800;
+
+    margin-top: 11px;
+}
+
+
+.kpi-value small {
+    font-size: 12px;
+
+    color: #718096;
+}
+
+
+.red-text {
+    color: #d64545;
+}
+
+
+.orange-text {
+    color: #d98218;
+}
+
+
+.kpi-note {
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    margin-top: 5px;
+}
+
+
+/* =========================================
+   CARDS
+========================================= */
+
+.card {
+    background: white;
+
+    border:
+        1px solid #e5e9f0;
+
+    border-radius: 15px;
+
+    margin-bottom: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 15px
+        rgba(20,40,75,0.035);
+}
+
+
+.card-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 17px 19px;
+
+    border-bottom:
+        1px solid #edf0f4;
+}
+
+
+.card-header h2 {
+    margin: 0;
+
+    font-size: 16px;
+}
+
+
+.card-header p {
+    margin:
+        5px 0 0;
+
+    color: #8b96a8;
+
+    font-size: 11px;
+}
+
+
+.outline-button {
+    border:
+        1px solid #d8dee8;
+
+    background: white;
+
+    color: #526078;
+
+    padding: 8px 11px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 11px;
+}
+
+
+.map-frame {
+    width: 100%;
+
+    height: 585px;
+
+    border: 0;
+
+    display: block;
+}
+
+
+.large-map {
+    width: 100%;
+
+    height: 700px;
+
+    border: 0;
+
+    display: block;
+}
+
+
+.chart-frame {
+    width: 100%;
+
+    height: 600px;
+
+    border: 0;
+
+    display: block;
+}
+
+
+.large-chart {
+    height: 700px;
+}
+
+
+/* =========================================
+   TWO COLUMN
+========================================= */
+
+.two-column {
+    display: grid;
+
+    grid-template-columns:
+        1.35fr 0.9fr;
+
+    gap: 18px;
+}
+
+
+.two-column > .card {
+    margin-bottom: 0;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.table-container {
+    overflow-x: auto;
+}
+
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+th {
+    text-align: left;
+
+    color: #8490a3;
+
+    font-size: 10px;
+
+    padding: 12px 16px;
+
+    background: #fafbfc;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+
+td {
+    padding: 13px 16px;
+
+    border-top:
+        1px solid #eef1f5;
+
+    font-size: 12px;
+
+    color: #4e5b70;
+}
+
+
+tr:hover td {
+    background: #fafcff;
+}
+
+
+/* =========================================
+   RISK PILLS
+========================================= */
+
+.risk-pill {
+    display: inline-block;
+
+    padding:
+        4px 8px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+
+.risk-high {
+    color: #c43d3d;
+
+    background: #fff0f0;
+}
+
+
+.risk-medium {
+    color: #c57a0d;
+
+    background: #fff5e5;
+}
+
+
+.risk-low {
+    color: #198754;
+
+    background: #eaf9f0;
+}
+
+
+/* =========================================
+   RISK BAR
+========================================= */
+
+.risk-bars {
+    padding: 20px;
+}
+
+
+.risk-line {
+    margin-bottom: 18px;
+}
+
+
+.risk-label {
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 12px;
+
+    margin-bottom: 7px;
+}
+
+
+.risk-label span {
+    color: #68758a;
+}
+
+
+.bar {
+    width: 100%;
+
+    height: 9px;
+
+    background: #eef1f5;
+
+    border-radius: 999px;
+
+    overflow: hidden;
+}
+
+
+.bar-fill {
+    height: 100%;
+
+    border-radius: 999px;
+}
+
+
+.bar-fill.high {
+    background: #ef5c5c;
+}
+
+
+.bar-fill.medium {
+    background: #f1a83a;
+}
+
+
+.bar-fill.low {
+    background: #39a96b;
+}
+
+
+.risk-summary {
+    display: flex;
+
+    gap: 35px;
+
+    border-top:
+        1px solid #edf0f4;
+
+    padding: 15px 20px;
+}
+
+
+.risk-summary span {
+    display: block;
+
+    color: #8b96a8;
+
+    font-size: 10px;
+}
+
+
+.risk-summary strong {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 16px;
+}
+
+
+/* =========================================
+   SEARCH
+========================================= */
+
+.search-row {
+    padding: 15px;
+
+    border-bottom:
+        1px solid #edf0f4;
+}
+
+
+.search-row input {
+    width: 100%;
+
+    max-width: 420px;
+
+    padding:
+        11px 13px;
+
+    border:
+        1px solid #dce2eb;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    font-size: 12px;
+}
+
+
+/* =========================================
+   PREDICTION
+========================================= */
+
+.prediction-card {
+    padding: 20px;
+}
+
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 16px;
+}
+
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #657189;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    padding:
+        11px 12px;
+
+    border:
+        1px solid #d8dee8;
+
+    border-radius: 8px;
+
+    background: white;
+
+    font-size: 12px;
+
+    outline: none;
+}
+
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #6695ed;
+}
+
+
+.predict-button {
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #4f7ff0
+        );
+
+    color: white;
+
+    font-weight: 800;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+
+.prediction-result {
+    margin-top: 20px;
+
+    padding: 18px;
+
+    background: #f7f9ff;
+
+    border:
+        1px solid #dfe7ff;
+
+    border-radius: 12px;
+}
+
+
+.hidden {
+    display: none;
+}
+
+
+.result-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+}
+
+
+.result-box {
+    background: white;
+
+    padding: 15px;
+
+    border:
+        1px solid #e3e8f1;
+
+    border-radius: 10px;
+}
+
+
+.result-box span {
+    display: block;
+
+    color: #7b879b;
+
+    font-size: 10px;
+}
+
+
+.result-box strong {
+    display: block;
+
+    margin-top: 6px;
+
+    font-size: 22px;
+}
+
+
+.recommendation-box {
+    margin-top: 13px;
+
+    padding: 14px;
+
+    border-radius: 10px;
+
+    background: white;
+
+    border:
+        1px solid #e3e8f1;
+}
+
+
+.recommendation-box strong {
+    font-size: 12px;
+}
+
+
+.recommendation-box p {
+    color: #67748a;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    margin-bottom: 0;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+    text-align: center;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    padding:
+        18px 0;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1150px) {
+
+    .kpi-grid {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .two-column {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 800px) {
+
+    .sidebar {
+        position: relative;
+
+        width: 100%;
+
+        height: auto;
+
+        min-height: auto;
+    }
+
+    .sidebar-bottom {
+        position: static;
+
+        margin-top: 20px;
+    }
+
+    .main {
+        margin-left: 0;
+
+        padding: 20px;
+    }
+
+    .kpi-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+}

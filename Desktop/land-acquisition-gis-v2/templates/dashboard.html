@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>LandGuard AI</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🛡️
+            </div>
+
+            <div>
+
+                <div class="brand-name">
+                    LandGuard AI
+                </div>
+
+                <div class="brand-subtitle">
+                    Predictive Land Intelligence
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="nav-section-title">
+            MAIN MENU
+        </div>
+
+
+        <button
+            class="nav-item active"
+            onclick="showPage('dashboard', this)"
+        >
+            <span>▦</span>
+            Dashboard
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="showPage('projects', this)"
+        >
+            <span>◫</span>
+            Projects
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="showPage('gis', this)"
+        >
+            <span>⌖</span>
+            GIS Risk Map
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="showPage('plots', this)"
+        >
+            <span>▤</span>
+            Plot Status
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="showPage('prediction', this)"
+        >
+            <span>✦</span>
+            Predict Delay
+        </button>
+
+
+        <div class="nav-section-title">
+            ANALYTICS
+        </div>
+
+
+        <button
+            class="nav-item"
+            onclick="showPage('risk', this)"
+        >
+            <span>◈</span>
+            Risk Analytics
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="showPage('delay', this)"
+        >
+            <span>◷</span>
+            Delay Analytics
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="showPage('compensation', this)"
+        >
+            <span>₹</span>
+            Compensation
+        </button>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="online-dot"></div>
+
+            <div>
+
+                <strong>
+                    SYSTEM ONLINE
+                </strong>
+
+                <small>
+                    GIS + Analytics + ML
+                </small>
+
+            </div>
+
+        </div>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main">
+
+
+        <!-- =================================================
+             TOP BAR
+        ================================================== -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+                    Land Acquisition Intelligence
+                </h1>
+
+                <p>
+                    Predictive monitoring of land acquisition,
+                    possession and delay risk.
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <div class="live-badge">
+                    ● Live Data
+                </div>
+
+                <div class="avatar">
+                    A
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
+
+        <section
+            id="dashboard"
+            class="page active-page"
+        >
+
+
+            <!-- KPI CARDS -->
+
+            <div class="kpi-grid">
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+
+                        <span>
+                            Total Projects
+                        </span>
+
+                        <div class="kpi-icon blue">
+                            ◫
+                        </div>
+
+                    </div>
+
+
+                    <div class="kpi-value">
+                        {{ total_projects }}
+                    </div>
+
+
+                    <div class="kpi-note">
+                        Active records
+                    </div>
+
+                </div>
+
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+
+                        <span>
+                            High Risk
+                        </span>
+
+                        <div class="kpi-icon red">
+                            !
+                        </div>
+
+                    </div>
+
+
+                    <div class="kpi-value red-text">
+                        {{ high_risk }}
+                    </div>
+
+
+                    <div class="kpi-note">
+                        Immediate attention
+                    </div>
+
+                </div>
+
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+
+                        <span>
+                            Medium Risk
+                        </span>
+
+                        <div class="kpi-icon orange">
+                            !
+                        </div>
+
+                    </div>
+
+
+                    <div class="kpi-value orange-text">
+                        {{ medium_risk }}
+                    </div>
+
+
+                    <div class="kpi-note">
+                        Requires monitoring
+                    </div>
+
+                </div>
+
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+
+                        <span>
+                            Average Delay
+                        </span>
+
+                        <div class="kpi-icon purple">
+                            ◷
+                        </div>
+
+                    </div>
+
+
+                    <div class="kpi-value">
+
+                        {{ "%.1f"|format(average_delay) }}
+
+                        <small>
+                            days
+                        </small>
+
+                    </div>
+
+
+                    <div class="kpi-note">
+                        Across projects
+                    </div>
+
+                </div>
+
+
+
+                <div class="kpi-card">
+
+                    <div class="kpi-top">
+
+                        <span>
+                            Avg Possession
+                        </span>
+
+                        <div class="kpi-icon green">
+                            ✓
+                        </div>
+
+                    </div>
+
+
+                    <div class="kpi-value">
+
+                        {{ "%.1f"|format(average_possession) }}%
+
+                    </div>
+
+
+                    <div class="kpi-note">
+                        Land possession
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 MAIN GIS PREVIEW
+            ================================================== -->
+
+            <div class="card map-card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            GIS Land Intelligence
+                        </h2>
+
+                        <p>
+                            Interactive parcel-level acquisition
+                            visualization
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="outline-button"
+                        onclick="showPageByName('gis')"
+                    >
+                        Open Full GIS →
+                    </button>
+
+                </div>
+
+
+                <iframe
+                    src="/files/land_plot_map.html"
+                    class="map-frame"
+                    title="Land Plot Map"
+                ></iframe>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 HEATMAP PREVIEW
+            ================================================== -->
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            🔥 Regional Risk Heatmap
+                        </h2>
+
+                        <p>
+                            Spatial concentration of acquisition risk
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="outline-button"
+                        onclick="showPageByName('gis')"
+                    >
+                        Open GIS →
+                    </button>
+
+                </div>
+
+
+                <iframe
+                    src="/files/risk_heatmap.html"
+                    class="large-map"
+                    title="Risk Heatmap"
+                ></iframe>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 ATTENTION + RISK
+            ================================================== -->
+
+            <div class="two-column">
+
+
+                <div class="card">
+
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                Projects Needing Attention
+                            </h2>
+
+                            <p>
+                                Highest priority acquisition records
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Project
+                                    </th>
+
+                                    <th>
+                                        District
+                                    </th>
+
+                                    <th>
+                                        Risk
+                                    </th>
+
+                                    <th>
+                                        Delay
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for item in attention_projects %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ item.project_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.district }}
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="risk-pill {{ item.risk_class }}"
+                                        >
+                                            {{ item.delay_risk }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        {{ item.delay_days }} days
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="card">
+
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                Risk Distribution
+                            </h2>
+
+                            <p>
+                                Current acquisition risk
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-bars">
+
+
+                        <div class="risk-line">
+
+                            <div class="risk-label">
+
+                                <span>
+                                    High Risk
+                                </span>
+
+                                <strong>
+                                    {{ high_risk }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bar">
+
+                                <div
+                                    class="bar-fill high"
+                                    style="width: {{ high_percent }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="risk-line">
+
+                            <div class="risk-label">
+
+                                <span>
+                                    Medium Risk
+                                </span>
+
+                                <strong>
+                                    {{ medium_risk }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bar">
+
+                                <div
+                                    class="bar-fill medium"
+                                    style="width: {{ medium_percent }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="risk-line">
+
+                            <div class="risk-label">
+
+                                <span>
+                                    Low Risk
+                                </span>
+
+                                <strong>
+                                    {{ low_risk }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bar">
+
+                                <div
+                                    class="bar-fill low"
+                                    style="width: {{ low_percent }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="risk-summary">
+
+
+                        <div>
+
+                            <span>
+                                Total Records
+                            </span>
+
+                            <strong>
+                                {{ total_records }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                High Risk %
+                            </span>
+
+                            <strong>
+                                {{ high_percent }}%
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             PROJECTS PAGE
+        ================================================== -->
+
+        <section
+            id="projects"
+            class="page"
+        >
+
+
+            <div class="page-heading">
+
+                <h2>
+                    Projects
+                </h2>
+
+                <p>
+                    Browse land acquisition projects
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+
+                <div class="search-row">
+
+                    <input
+                        type="text"
+                        id="projectSearch"
+                        placeholder="Search project, district or state..."
+                        onkeyup="filterProjects()"
+                    >
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table id="projectTable">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Project ID
+                                </th>
+
+                                <th>
+                                    Project Name
+                                </th>
+
+                                <th>
+                                    State
+                                </th>
+
+                                <th>
+                                    District
+                                </th>
+
+                                <th>
+                                    Risk
+                                </th>
+
+                                <th>
+                                    Delay
+                                </th>
+
+                                <th>
+                                    Possession
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for item in project_table %}
+
+                            <tr>
+
+                                <td>
+                                    {{ item.project_id }}
+                                </td>
+
+                                <td>
+                                    {{ item.project_name }}
+                                </td>
+
+                                <td>
+                                    {{ item.state }}
+                                </td>
+
+                                <td>
+                                    {{ item.district }}
+                                </td>
+
+                                <td>
+
+                                    <span
+                                        class="risk-pill {{ item.risk_class }}"
+                                    >
+                                        {{ item.delay_risk }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    {{ item.delay_days }} days
+                                </td>
+
+                                <td>
+                                    {{ item.possession_percent }}%
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             GIS PAGE — FULL
+        ================================================== -->
+
+        <section
+            id="gis"
+            class="page"
+        >
+
+
+            <div class="page-heading">
+
+                <h2>
+                    GIS Risk Intelligence
+                </h2>
+
+                <p>
+                    Explore acquisition risk, project locations,
+                    parcel boundaries and possession status.
+                </p>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 MAP 1 — LAND ACQUISITION MAP
+            ================================================== -->
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            🗺️ Land Acquisition Map
+                        </h2>
+
+                        <p>
+                            Project locations and acquisition progress
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/land_acquisition_map.html"
+                    class="large-map"
+                    title="Land Acquisition Map"
+                ></iframe>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 MAP 2 — RISK HEATMAP
+            ================================================== -->
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            🔥 Risk Heatmap
+                        </h2>
+
+                        <p>
+                            Spatial concentration of high-risk
+                            land acquisition projects
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/risk_heatmap.html"
+                    class="large-map"
+                    title="Risk Heatmap"
+                ></iframe>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 MAP 3 — LAND PLOT MAP
+            ================================================== -->
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            🟩 Land Plot Status Map
+                        </h2>
+
+                        <p>
+                            Parcel-level possession monitoring
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/land_plot_map.html"
+                    class="large-map"
+                    title="Land Plot Status"
+                ></iframe>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 MAP 4 — PLOT STATUS MAP
+            ================================================== -->
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            📍 Plot Status Overview
+                        </h2>
+
+                        <p>
+                            Detailed possession status visualization
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/plot_status_map.html"
+                    class="large-map"
+                    title="Plot Status Overview"
+                ></iframe>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             PLOT STATUS PAGE
+        ================================================== -->
+
+        <section
+            id="plots"
+            class="page"
+        >
+
+
+            <div class="page-heading">
+
+                <h2>
+                    Land Plot Status
+                </h2>
+
+                <p>
+                    Detailed parcel-level possession monitoring
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            🟩 Interactive Parcel Map
+                        </h2>
+
+                        <p>
+                            Click a plot to view detailed information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/land_plot_map.html"
+                    class="large-map"
+                    title="Interactive Parcel Map"
+                ></iframe>
+
+
+            </div>
+
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            📊 Plot Status Overview
+                        </h2>
+
+                        <p>
+                            Not in possession, partially possessed
+                            and fully possessed
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/plot_status_map.html"
+                    class="large-map"
+                    title="Plot Status Map"
+                ></iframe>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             PREDICT DELAY PAGE
+        ================================================== -->
+
+        <section
+            id="prediction"
+            class="page"
+        >
+
+
+            <div class="page-heading">
+
+                <h2>
+                    AI Delay Prediction
+                </h2>
+
+                <p>
+                    Random Forest based predictive decision support
+                </p>
+
+            </div>
+
+
+            <div class="card prediction-card">
+
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Project
+                        </label>
+
+
+                        <select
+                            id="predictionProject"
+                        >
+
+                            {% for project in projects %}
+
+                            <option value="{{ project }}">
+                                {{ project }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Possession (%)
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="possession"
+                            value="40"
+                            min="0"
+                            max="100"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Land Acquired (%)
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="land_acquired"
+                            value="50"
+                            min="0"
+                            max="100"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Pending Approvals
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="pending_approvals"
+                            value="2"
+                            min="0"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Compensation Pending (%)
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="compensation_pending"
+                            value="40"
+                            min="0"
+                            max="100"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Legal Cases
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="legal_cases"
+                            value="1"
+                            min="0"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Affected Families
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="affected_families"
+                            value="20"
+                            min="0"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            RR Completed (%)
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="rr_completed"
+                            value="50"
+                            min="0"
+                            max="100"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Planned Duration (months)
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="planned_duration"
+                            value="70"
+                            min="0"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Environmental Clearance
+                        </label>
+
+
+                        <select id="environmental">
+
+                            <option value="1">
+                                Yes
+                            </option>
+
+                            <option value="0">
+                                No
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Forest Clearance
+                        </label>
+
+
+                        <select id="forest">
+
+                            <option value="1">
+                                Yes
+                            </option>
+
+                            <option value="0">
+                                No
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <button
+                    class="predict-button"
+                    onclick="runPrediction()"
+                >
+                    ✦ RUN AI PREDICTION
+                </button>
+
+
+
+                <div
+                    id="predictionResult"
+                    class="prediction-result hidden"
+                >
+
+
+                    <div class="result-grid">
+
+
+                        <div class="result-box">
+
+                            <span>
+                                Predicted Delay
+                            </span>
+
+                            <strong id="predictedDelay">
+                                -
+                            </strong>
+
+                        </div>
+
+
+
+                        <div class="result-box">
+
+                            <span>
+                                Risk Level
+                            </span>
+
+                            <strong id="predictedRisk">
+                                -
+                            </strong>
+
+                        </div>
+
+
+
+                        <div class="result-box">
+
+                            <span>
+                                Current Delay
+                            </span>
+
+                            <strong id="currentDelay">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="recommendation-box">
+
+                        <strong>
+                            AI Recommendation
+                        </strong>
+
+
+                        <p id="recommendation">
+                            -
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             RISK ANALYTICS
+        ================================================== -->
+
+        <section
+            id="risk"
+            class="page"
+        >
+
+
+            <div class="page-heading">
+
+                <h2>
+                    Risk Analytics
+                </h2>
+
+                <p>
+                    High-risk districts and regional patterns
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            High-Risk Districts
+                        </h2>
+
+                        <p>
+                            Districts with the highest
+                            number of high-risk projects
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/high_risk_by_district.html"
+                    class="chart-frame"
+                    title="High Risk Districts"
+                ></iframe>
+
+
+            </div>
+
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Risk Distribution
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/risk_distribution.html"
+                    class="chart-frame"
+                    title="Risk Distribution"
+                ></iframe>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             DELAY ANALYTICS
+        ================================================== -->
+
+        <section
+            id="delay"
+            class="page"
+        >
+
+
+            <div class="page-heading">
+
+                <h2>
+                    Delay Analytics
+                </h2>
+
+                <p>
+                    Acquisition delay across states and years
+                </p>
+
+            </div>
+
+
+
+            <div class="two-column">
+
+
+                <div class="card">
+
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                Average Delay by State
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <iframe
+                        src="/files/average_delay_by_state.html"
+                        class="chart-frame"
+                        title="Average Delay by State"
+                    ></iframe>
+
+
+                </div>
+
+
+
+                <div class="card">
+
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                Average Delay by Year
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <iframe
+                        src="/files/average_delay_by_year.html"
+                        class="chart-frame"
+                        title="Average Delay by Year"
+                    ></iframe>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             COMPENSATION
+        ================================================== -->
+
+        <section
+            id="compensation"
+            class="page"
+        >
+
+
+            <div class="page-heading">
+
+                <h2>
+                    Compensation Analytics
+                </h2>
+
+                <p>
+                    Compensation and rehabilitation monitoring
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Compensation Status
+                        </h2>
+
+                        <p>
+                            Current compensation progress
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <iframe
+                    src="/files/compensation_status.html"
+                    class="chart-frame large-chart"
+                    title="Compensation Status"
+                ></iframe>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
+
+        <footer>
+
+            LandGuard AI
+            • GIS
+            • Analytics
+            • Machine Learning
+            • SIH Prototype
+
+        </footer>
+
+
+    </main>
+
+
+</div>
+
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
+
+
+</body>
+
+</html>
