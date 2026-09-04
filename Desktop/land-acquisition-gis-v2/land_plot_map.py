@@ -1,776 +1,463 @@
 import pandas as pd
 import folium
+from folium.features import DivIcon
 
 
 # =========================================================
-# 1. LOAD DEMO DATASET
+# LOAD MERGED DATASET
 # =========================================================
 
-df = pd.read_csv("plot_demo_data.csv")
-
-
-# =========================================================
-# 2. CREATE POSSESSION STATUS
-# =========================================================
-
-def get_status(percent):
-
-    if percent == 0:
-        return "NOT IN POSSESSION"
-
-    elif percent < 100:
-        return "PARTIALLY POSSESSED"
-
-    else:
-        return "FULLY POSSESSED"
-
-
-df["possession_status"] = (
-    df["possession_percent"]
-    .apply(get_status)
-)
+df = pd.read_csv("final_data.csv")
 
 
 # =========================================================
-# 3. SELECT 5 DEMO PLOTS
+# SELECT ONE PROJECT FOR PARCEL DEMO
 # =========================================================
 
-project_df = (
-    df.head(5)
-    .reset_index(drop=True)
-)
+project_id = "LA-REF-0001"
+
+project_df = df[
+    df["project_id"].astype(str) == project_id
+].copy()
 
 
-# =========================================================
-# 4. PROJECT INFORMATION
-# =========================================================
-
-project_id = project_df["project_id"].iloc[0]
-
-project_name = project_df["project_name"].iloc[0]
-
-district = project_df["district"].iloc[0]
-
-state = project_df["state"].iloc[0]
+# Show only records having plot IDs
+project_df = project_df[
+    project_df["plot_id"].notna()
+].head(5)
 
 
 # =========================================================
-# 5. APPROXIMATE LOCATION
+# FALLBACK
 # =========================================================
 
-PROJECT_LOCATION = {
+if project_df.empty:
 
-    "Maharashtra": [19.7515, 75.7139],
+    print("No plot records found.")
 
-    "Gujarat": [22.2587, 71.1924],
-
-    "Madhya Pradesh": [22.9734, 78.6569],
-
-    "Rajasthan": [27.0238, 74.2179],
-
-    "Delhi": [28.6139, 77.2090],
-
-    "Punjab": [31.1471, 75.3412],
-
-    "Haryana": [29.0588, 76.0856],
-
-    "Uttar Pradesh": [26.8467, 80.9462],
-
-    "Bihar": [25.0961, 85.3131],
-
-    "Jharkhand": [23.6102, 85.2799],
-
-    "West Bengal": [22.9868, 87.8550],
-
-    "Odisha": [20.9517, 85.0985],
-
-    "Chhattisgarh": [21.2787, 81.8661],
-
-    "Telangana": [18.1124, 79.0193],
-
-    "Andhra Pradesh": [15.9129, 79.7400],
-
-    "Karnataka": [15.3173, 75.7139],
-
-    "Tamil Nadu": [11.1271, 78.6569],
-
-    "Kerala": [10.8505, 76.2711],
-
-    "Assam": [26.2006, 92.9376],
-
-    "Himachal Pradesh": [31.1048, 77.1734],
-
-    "Uttarakhand": [30.0668, 79.0193],
-
-    "Jammu and Kashmir": [33.7782, 76.5762]
-}
-
-
-base_lat, base_lon = PROJECT_LOCATION.get(
-    state,
-    [22.5, 79.0]
-)
+    raise SystemExit
 
 
 # =========================================================
-# 6. CREATE MAP
+# MAP LOCATION
 # =========================================================
+
+center_lat = 19.2500
+center_lon = 73.0200
+
 
 m = folium.Map(
-
-    location=[
-        base_lat,
-        base_lon
-    ],
-
-    zoom_start=17,
-
-    tiles=None
-
+    location=[center_lat, center_lon],
+    zoom_start=13,
+    control_scale=True
 )
 
 
 # =========================================================
-# 7. SATELLITE MAP
-# =========================================================
-
-folium.TileLayer(
-
-    tiles=(
-        "https://server.arcgisonline.com/"
-        "ArcGIS/rest/services/World_Imagery/"
-        "MapServer/tile/{z}/{y}/{x}"
-    ),
-
-    attr="Esri World Imagery",
-
-    name="Satellite",
-
-    overlay=False
-
-).add_to(m)
-
-
-# =========================================================
-# 8. STREET MAP
-# =========================================================
-
-folium.TileLayer(
-
-    "OpenStreetMap",
-
-    name="Street Map",
-
-    overlay=False
-
-).add_to(m)
-
-
-# =========================================================
-# 9. CONNECTED LAND PARCEL SHAPES
-# =========================================================
-
-plot_shapes = [
-
-    # PLOT 1
-    [
-        (0.0000, 0.0000),
-        (0.0017, 0.0002),
-        (0.0015, 0.0022),
-        (0.0001, 0.0025),
-        (-0.0002, 0.0012)
-    ],
-
-    # PLOT 2
-    [
-        (0.0017, 0.0002),
-        (0.0035, 0.0000),
-        (0.0037, 0.0013),
-        (0.0034, 0.0024),
-        (0.0015, 0.0022)
-    ],
-
-    # PLOT 3
-    [
-        (-0.0002, 0.0012),
-        (0.0001, 0.0025),
-        (0.0015, 0.0022),
-        (0.0016, 0.0044),
-        (0.0001, 0.0047),
-        (-0.0004, 0.0030)
-    ],
-
-    # PLOT 4
-    [
-        (0.0015, 0.0022),
-        (0.0034, 0.0024),
-        (0.0036, 0.0044),
-        (0.0016, 0.0044)
-    ],
-
-    # PLOT 5
-    [
-        (0.0001, 0.0047),
-        (0.0016, 0.0044),
-        (0.0036, 0.0044),
-        (0.0033, 0.0062),
-        (0.0015, 0.0067),
-        (0.0000, 0.0062)
-    ]
-
-]
-
-
-# =========================================================
-# 10. ADD ROAD
-# =========================================================
-
-road_coordinates = [
-
-    [
-        base_lat - 0.0018,
-        base_lon - 0.0030
-    ],
-
-    [
-        base_lat - 0.0014,
-        base_lon + 0.0080
-    ]
-
-]
-
-
-folium.PolyLine(
-
-    road_coordinates,
-
-    color="white",
-
-    weight=18,
-
-    opacity=0.95
-
-).add_to(m)
-
-
-# =========================================================
-# 11. ADD PLOTS
-# =========================================================
-
-for i, (_, row) in enumerate(
-    project_df.iterrows()
-):
-
-    shape = plot_shapes[i]
-
-
-    # -----------------------------------------------------
-    # Convert local coordinates to map coordinates
-    # -----------------------------------------------------
-
-    polygon = [
-
-        [
-            base_lat + lat,
-            base_lon + lon
-        ]
-
-        for lat, lon in shape
-
-    ]
-
-
-    # -----------------------------------------------------
-    # Get possession status
-    # -----------------------------------------------------
-
-    status = row["possession_status"]
-
-
-    # -----------------------------------------------------
-    # Set color
-    # -----------------------------------------------------
-
-    if status == "NOT IN POSSESSION":
-
-        color = "green"
-
-    elif status == "PARTIALLY POSSESSED":
-
-        color = "orange"
-
-    else:
-
-        color = "red"
-
-
-    # -----------------------------------------------------
-    # Popup
-    # -----------------------------------------------------
-
-    popup_html = f"""
-
-    <div style="
-        width:360px;
-        font-family:Arial;
-    ">
-
-        <h2 style="
-            margin-top:0;
-            color:#222;
-        ">
-
-            LAND PLOT DETAILS
-
-        </h2>
-
-
-        <p>
-
-            <b>Plot ID:</b>
-            {row["plot_id"]}
-
-        </p>
-
-
-        <p>
-
-            <b>Parcel ID:</b>
-            {row["parcel_id"]}
-
-        </p>
-
-
-        <p>
-
-            <b>Project ID:</b>
-            {row["project_id"]}
-
-        </p>
-
-
-        <p>
-
-            <b>Project:</b>
-            {row["project_name"]}
-
-        </p>
-
-
-        <p>
-
-            <b>District:</b>
-            {row["district"]}
-
-        </p>
-
-
-        <p>
-
-            <b>State:</b>
-            {row["state"]}
-
-        </p>
-
-
-        <hr>
-
-
-        <p>
-
-            <b>Possession:</b>
-            {row["possession_percent"]}%
-
-        </p>
-
-
-        <p>
-
-            <b>Possession Status:</b>
-            {status}
-
-        </p>
-
-
-        <p>
-
-            <b>Land Acquired:</b>
-            {row["land_acquired_percent"]}%
-
-        </p>
-
-
-        <p>
-
-            <b>Delay Risk:</b>
-            {row["delay_risk"]}
-
-        </p>
-
-
-        <p>
-
-            <b>Delay:</b>
-            {row["delay_days"]} days
-
-        </p>
-
-
-        <p>
-
-            <b>Compensation:</b>
-            {row["compensation_status"]}
-
-        </p>
-
-
-        <p>
-
-            <b>Rehabilitation:</b>
-            {row["rehabilitation_status"]}
-
-        </p>
-
-
-        <p>
-
-            <b>Objections:</b>
-            {row["objection_count"]}
-
-        </p>
-
-    </div>
-
-    """
-
-
-    # -----------------------------------------------------
-    # Add polygon
-    # -----------------------------------------------------
-
-    folium.Polygon(
-
-        locations=polygon,
-
-        color="white",
-
-        weight=3,
-
-        fill=True,
-
-        fill_color=color,
-
-        fill_opacity=0.65,
-
-        popup=folium.Popup(
-
-            popup_html,
-
-            max_width=390
-
-        ),
-
-        tooltip=(
-
-            f"{row['plot_id']} | "
-            f"{row['possession_percent']}%"
-
-        )
-
-    ).add_to(m)
-
-
-    # -----------------------------------------------------
-    # Find center
-    # -----------------------------------------------------
-
-    center_lat = (
-
-        base_lat
-
-        + sum(
-            point[0]
-            for point in shape
-        ) / len(shape)
-
-    )
-
-
-    center_lon = (
-
-        base_lon
-
-        + sum(
-            point[1]
-            for point in shape
-        ) / len(shape)
-
-    )
-
-
-    # -----------------------------------------------------
-    # Plot ID
-    # -----------------------------------------------------
-
-    folium.Marker(
-
-        location=[
-
-            center_lat,
-            center_lon
-
-        ],
-
-        icon=folium.DivIcon(
-
-            html=f"""
-
-            <div style="
-
-                font-size:11px;
-
-                font-weight:bold;
-
-                color:white;
-
-                background:rgba(0,0,0,0.60);
-
-                padding:4px 7px;
-
-                border-radius:5px;
-
-                white-space:nowrap;
-
-                text-align:center;
-
-            ">
-
-                {row["plot_id"]}
-
-            </div>
-
-            """
-
-        )
-
-    ).add_to(m)
-
-
-# =========================================================
-# 12. TITLE
+# TITLE
 # =========================================================
 
 title_html = f"""
-
 <div style="
-
-    position:fixed;
-
-    top:20px;
-
-    left:50%;
-
-    transform:translateX(-50%);
-
-    z-index:9999;
-
-    background:white;
-
-    padding:15px 30px;
-
-    border-radius:12px;
-
-    box-shadow:
-        0 4px 16px rgba(0,0,0,0.30);
-
-    font-family:Arial;
-
-    text-align:center;
-
-    min-width:460px;
-
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    background: white;
+    padding: 18px 35px;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    text-align: center;
+    min-width: 520px;
 ">
 
-
     <div style="
-
-        font-size:22px;
-
-        font-weight:bold;
-
+        font-size: 26px;
+        font-weight: 800;
+        color: #222;
     ">
-
         LAND PARCEL STATUS VIEWER
-
     </div>
 
+    <div style="
+        margin-top: 8px;
+        font-size: 15px;
+        color: #444;
+    ">
+        Mumbai-Ahmedabad High Speed Rail
+        (Bullet Train) - Package 1
+    </div>
 
     <div style="
-
-        font-size:13px;
-
-        margin-top:6px;
-
-        color:#444;
-
+        margin-top: 4px;
+        font-size: 14px;
+        color: #666;
     ">
-
-        {project_name}
-
-        <br>
-
-        {district}, {state}
-
+        Palghar, Maharashtra
     </div>
 
 </div>
-
 """
 
-
 m.get_root().html.add_child(
-
     folium.Element(title_html)
-
 )
 
 
 # =========================================================
-# 13. LEGEND
+# LEGEND
 # =========================================================
 
 legend_html = """
-
 <div style="
-
-    position:fixed;
-
-    bottom:25px;
-
-    left:25px;
-
-    z-index:9999;
-
-    background:white;
-
-    padding:17px;
-
-    width:250px;
-
-    border-radius:12px;
-
-    box-shadow:
-        0 4px 16px rgba(0,0,0,0.30);
-
-    font-family:Arial;
-
+    position: fixed;
+    bottom: 35px;
+    left: 35px;
+    z-index: 9999;
+    background: white;
+    padding: 18px 20px;
+    border-radius: 14px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+    width: 260px;
 ">
 
-
     <div style="
-
-        font-size:16px;
-
-        font-weight:bold;
-
-        margin-bottom:12px;
-
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 15px;
     ">
-
         LAND POSSESSION STATUS
-
     </div>
 
-
-    <div style="margin-bottom:6px;">
-
+    <div style="margin: 10px 0;">
         <span style="
-            color:green;
-            font-size:22px;
-        ">■</span>
-
+            display:inline-block;
+            width:14px;
+            height:14px;
+            background:#168a16;
+            margin-right:8px;
+        "></span>
         Not in Possession
-
     </div>
 
-
-    <div style="margin-bottom:6px;">
-
+    <div style="margin: 10px 0;">
         <span style="
-            color:orange;
-            font-size:22px;
-        ">■</span>
-
+            display:inline-block;
+            width:14px;
+            height:14px;
+            background:#ff9f0a;
+            margin-right:8px;
+        "></span>
         Partially Possessed
-
     </div>
 
-
-    <div style="margin-bottom:6px;">
-
+    <div style="margin: 10px 0;">
         <span style="
-            color:red;
-            font-size:22px;
-        ">■</span>
-
+            display:inline-block;
+            width:14px;
+            height:14px;
+            background:#ff1f1f;
+            margin-right:8px;
+        "></span>
         Fully Possessed
-
     </div>
-
 
     <hr>
 
-
     <div style="
-        font-size:11px;
-        color:#666;
+        font-size: 13px;
+        color: #777;
     ">
-
         Prototype parcel boundaries
-
     </div>
 
 </div>
-
 """
 
-
 m.get_root().html.add_child(
-
     folium.Element(legend_html)
-
 )
 
 
 # =========================================================
-# 14. LAYER CONTROL
+# PLOT COLORS
+# =========================================================
+
+def get_color(status):
+
+    status = str(status).upper().strip()
+
+    if status == "FULLY POSSESSED":
+        return "#ff1f1f"
+
+    elif status == "PARTIALLY POSSESSED":
+        return "#ffb347"
+
+    else:
+        return "#6aaa5a"
+
+
+# =========================================================
+# CREATE 5 PARCELS
+# =========================================================
+
+base_lat = 19.255
+base_lon = 73.020
+
+
+plot_positions = [
+
+    [(base_lat, base_lon),
+     (base_lat + 0.002, base_lon + 0.001),
+     (base_lat + 0.001, base_lon + 0.004),
+     (base_lat - 0.001, base_lon + 0.004)],
+
+    [(base_lat + 0.002, base_lon + 0.004),
+     (base_lat + 0.004, base_lon + 0.0045),
+     (base_lat + 0.004, base_lon + 0.0075),
+     (base_lat + 0.002, base_lon + 0.007)],
+
+    [(base_lat - 0.001, base_lon + 0.004),
+     (base_lat + 0.001, base_lon + 0.004),
+     (base_lat + 0.001, base_lon + 0.007),
+     (base_lat - 0.001, base_lon + 0.007)],
+
+    [(base_lat + 0.004, base_lon + 0.0005),
+     (base_lat + 0.006, base_lon + 0.001),
+     (base_lat + 0.006, base_lon + 0.004),
+     (base_lat + 0.004, base_lon + 0.0045)],
+
+    [(base_lat + 0.004, base_lon + 0.0075),
+     (base_lat + 0.006, base_lon + 0.007),
+     (base_lat + 0.006, base_lon + 0.0095),
+     (base_lat + 0.003, base_lon + 0.0095)]
+]
+
+
+# =========================================================
+# DRAW PARCELS
+# =========================================================
+
+for index, (_, row) in enumerate(
+    project_df.iterrows()
+):
+
+    if index >= len(plot_positions):
+        break
+
+
+    plot_id = str(
+        row["plot_id"]
+    )
+
+    parcel_id = str(
+        row["parcel_id"]
+    )
+
+    possession_status = str(
+        row["possession_status"]
+    )
+
+
+    possession_percent = row[
+        "possession_percent"
+    ]
+
+
+    land_acquired = row[
+        "land_acquired_percent"
+    ]
+
+
+    delay_days = row[
+        "delay_days"
+    ]
+
+
+    delay_risk = str(
+        row["delay_risk"]
+    )
+
+
+    compensation_status = str(
+        row["compensation_status"]
+    )
+
+
+    color = get_color(
+        possession_status
+    )
+
+
+    # -----------------------------------------------------
+    # POPUP
+    # -----------------------------------------------------
+
+    popup_html = f"""
+    <div style="
+        width: 350px;
+        font-family: Arial;
+        line-height: 1.6;
+    ">
+
+        <h3 style="
+            margin-top:0;
+            color:#16325c;
+        ">
+            LAND PLOT DETAILS
+        </h3>
+
+        <hr>
+
+        <b>Plot ID:</b>
+        {plot_id}
+
+        <br>
+
+        <b>Parcel ID:</b>
+        {parcel_id}
+
+        <br>
+
+        <b>Project ID:</b>
+        {project_id}
+
+        <br><br>
+
+        <b>District:</b>
+        {row["district"]}
+
+        <br>
+
+        <b>State:</b>
+        {row["state"]}
+
+        <br><br>
+
+        <hr>
+
+        <b>Possession:</b>
+        {possession_percent}%
+
+        <br>
+
+        <b>Possession Status:</b>
+        {possession_status}
+
+        <br>
+
+        <b>Land Acquired:</b>
+        {land_acquired}%
+
+        <br>
+
+        <b>Delay:</b>
+        {delay_days} days
+
+        <br>
+
+        <b>Delay Risk:</b>
+        {delay_risk}
+
+        <br>
+
+        <b>Compensation:</b>
+        {compensation_status}
+
+        <br>
+
+        <b>Legal Cases:</b>
+        {row["legal_cases"]}
+
+    </div>
+    """
+
+
+    popup = folium.Popup(
+        popup_html,
+        max_width=420
+    )
+
+
+    # -----------------------------------------------------
+    # POLYGON
+    # -----------------------------------------------------
+
+    folium.Polygon(
+        locations=plot_positions[index],
+        color="white",
+        weight=3,
+        fill=True,
+        fill_color=color,
+        fill_opacity=0.75,
+        popup=popup,
+        tooltip=f"{plot_id} | {possession_status}"
+    ).add_to(m)
+
+
+    # -----------------------------------------------------
+    # LABEL
+    # -----------------------------------------------------
+
+    center_point = [
+        sum(
+            point[0]
+            for point in plot_positions[index]
+        ) / len(plot_positions[index]),
+
+        sum(
+            point[1]
+            for point in plot_positions[index]
+        ) / len(plot_positions[index])
+    ]
+
+
+    folium.map.Marker(
+        center_point,
+        icon=DivIcon(
+            html=f"""
+            <div style="
+                font-size: 13px;
+                font-weight: 700;
+                color: white;
+                background: rgba(0,0,0,0.55);
+                padding: 5px 8px;
+                border-radius: 6px;
+                text-align: center;
+                white-space: nowrap;
+            ">
+                {plot_id}
+            </div>
+            """
+        )
+    ).add_to(m)
+
+
+# =========================================================
+# LAYER CONTROL
 # =========================================================
 
 folium.LayerControl().add_to(m)
 
 
 # =========================================================
-# 15. SAVE MAP
+# SAVE MAP
 # =========================================================
 
-m.save(
+output_file = "land_plot_map.html"
 
-    "land_plot_map.html"
-
-)
+m.save(output_file)
 
 
 # =========================================================
-# 16. SUCCESS MESSAGE
+# SUCCESS MESSAGE
 # =========================================================
 
-print("==========================================")
-
-print(
-    "5-PLOT DEMO MAP CREATED SUCCESSFULLY"
-)
-
-print("==========================================")
+print()
+print("=" * 50)
+print("LAND PARCEL MAP CREATED SUCCESSFULLY")
+print("=" * 50)
 
 print(
     "Project:",
@@ -783,13 +470,8 @@ print(
 )
 
 print(
-    "Possession values:",
-    project_df["possession_percent"].tolist()
-)
-
-print(
     "Output:",
-    "land_plot_map.html"
+    output_file
 )
 
-print("==========================================")
+print("=" * 50)
